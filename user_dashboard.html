@@ -255,7 +255,7 @@
         async function initializeApp() {
             try {
                 // 1. Xin cấu hình từ Python
-                const response = await fetch('http://127.0.0.1:8000/api/config');
+                const response = await fetch('https://home-task-manager.onrender.com/api/config');
                 const config = await response.json();
                 
                 // 2. Dùng thư viện supabase gốc để tạo ra client của riêng mình

@@ -68,7 +68,7 @@
         // 1. TỰ ĐỘNG XIN KEY TỪ PYTHON KHI MỞ TRANG
         document.addEventListener('DOMContentLoaded', async () => {
             try {
-                const response = await fetch('http://127.0.0.1:8000/api/config');
+                const response = await fetch('https://home-task-manager.onrender.com/api/config');
                 const config = await response.json();
                 mySupabase = supabase.createClient(config.SUPABASE_URL, config.SUPABASE_KEY);
             } catch (error) {
