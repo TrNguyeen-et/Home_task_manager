@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Trị Viên - Home Task Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .admin-tab { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .admin-tab.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden text-slate-800">
+
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col transition-all duration-300 z-10 hidden md:flex">
+        <div class="h-16 flex items-center px-6 border-b border-slate-200">
+            <i class="fa-solid fa-house-chimney-user text-indigo-600 text-2xl mr-3"></i>
+            <span class="text-xl font-bold text-slate-900">AdminPanel</span>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+            <button onclick="switchTab('tab-reviews', this)" class="nav-btn w-full flex items-center px-3 py-2.5 bg-indigo-50 text-indigo-600 rounded-lg font-medium transition-colors">
+                <i class="fa-solid fa-clipboard-check w-6"></i> Duyệt công việc
+            </button>
+            <button onclick="switchTab('tab-expenses', this)" class="nav-btn w-full flex items-center px-3 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-lg font-medium transition-colors">
+                <i class="fa-solid fa-money-bill-transfer w-6"></i> Quản lý chi tiêu
+            </button>
+            <button onclick="switchTab('tab-members', this)" class="nav-btn w-full flex items-center px-3 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-lg font-medium transition-colors">
+                <i class="fa-solid fa-users w-6"></i> Quản lý thành viên
+            </button>
+        </div>
+
+        <div class="p-4 border-t border-slate-200">
+            <button onclick="logout()" class="flex items-center w-full px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg font-medium transition-colors">
+                <i class="fa-solid fa-arrow-right-from-bracket w-6"></i> Đăng xuất
+            </button>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative">
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 z-10">
+            <h1 class="text-xl font-semibold text-slate-800" id="headerTitle">Duyệt công việc</h1>
+            <div class="flex items-center gap-3">
+                <div class="text-right hidden sm:block">
+                    <p class="text-sm font-bold text-slate-900" id="adminName">Đang tải...</p>
+                    <p class="text-xs text-slate-500">Quản trị viên</p>
+                </div>
+                <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold border-2 border-white shadow-sm">AD</div>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-6 bg-slate-50/50">
+            
+            <section id="tab-reviews" class="admin-tab active">
+                <div id="loading" class="flex flex-col items-center justify-center py-20">
+                    <i class="fa-solid fa-circle-notch fa-spin text-4xl text-indigo-500 mb-4"></i>
+                    <p class="text-slate-500">Đang tải danh sách chờ duyệt...</p>
+                </div>
+                <div id="taskGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden"></div>
+                <div id="emptyState" class="hidden flex flex-col items-center justify-center py-20 text-center">
+                    <div class="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center text-green-500 mb-4">
+                        <i class="fa-solid fa-mug-hot text-4xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900">Tuyệt vời! Không còn việc nào chờ duyệt.</h3>
+                </div>
+            </section>
+
+            <section id="tab-members" class="admin-tab">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="p-5 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+                        <h2 class="font-bold text-slate-800">Danh sách thành viên trong nhà</h2>
+                        <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full" id="totalMembers">0 người</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="text-xs text-slate-500 uppercase bg-white border-b border-slate-200">
+                                    <th class="px-6 py-4 font-semibold">Thành viên</th>
+                                    <th class="px-6 py-4 font-semibold">Vai trò</th>
+                                    <th class="px-6 py-4 font-semibold">Điểm tích lũy</th>
+                                    <th class="px-6 py-4 font-semibold text-right">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="memberList" class="divide-y divide-slate-100">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tab-expenses" class="admin-tab">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-6">
+                    <div class="p-5 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+                        <h2 class="font-bold text-slate-800">Tổng quan chi tiêu (Chưa quyết toán)</h2>
+                        <button onclick="settleExpenses()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors shadow-sm">
+                            <i class="fa-solid fa-check-double mr-1"></i> Chốt sổ tháng này
+                        </button>
+                    </div>
+                    <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                            <p class="text-sm text-slate-500 font-medium mb-1">Tổng chi tiêu cả nhà</p>
+                            <p class="text-3xl font-bold text-slate-800" id="totalExpense">0 ₫</p>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                            <p class="text-sm text-blue-600 font-medium mb-1">Bình quân mỗi người</p>
+                            <p class="text-3xl font-bold text-blue-700" id="avgExpense">0 ₫</p>
+                        </div>
+                        <div class="bg-amber-50 p-4 rounded-xl border border-amber-100">
+                            <p class="text-sm text-amber-600 font-medium mb-1">Số khoản chi</p>
+                            <p class="text-3xl font-bold text-amber-700" id="expenseCount">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden h-fit">
+                        <div class="p-5 border-b border-slate-200 bg-slate-50">
+                            <h3 class="font-bold text-slate-800"><i class="fa-solid fa-scale-balanced text-indigo-500 mr-2"></i>Tình trạng cân đối (Ai nợ ai)</h3>
+                        </div>
+                        <div class="p-5">
+                            <ul id="balanceList" class="space-y-3">
+                                <li class="text-center text-slate-400 py-4 italic">Đang tải thuật toán...</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="p-5 border-b border-slate-200 bg-slate-50">
+                            <h3 class="font-bold text-slate-800"><i class="fa-solid fa-receipt text-slate-500 mr-2"></i>Lịch sử khai báo</h3>
+                        </div>
+                        <div class="p-0 overflow-y-auto max-h-[400px]">
+                            <ul id="adminExpenseList" class="divide-y divide-slate-100">
+                                </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <div id="pointsModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden transform transition-all">
+            <div class="p-5 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+                <h3 class="font-bold text-slate-800">Điều chỉnh điểm</h3>
+                <button onclick="closePointsModal()" class="text-slate-400 hover:text-red-500 transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="p-6">
+                <p class="text-sm text-slate-600 mb-4">Đang điều chỉnh cho: <strong id="modalUserName" class="text-indigo-600 text-lg">...</strong></p>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Số điểm (Dùng dấu trừ - để phạt)</label>
+                        <input type="number" id="pointValue" placeholder="VD: 10 (thưởng) hoặc -5 (phạt)" class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-lg">
+                    </div>
+                </div>
+            </div>
+            <div class="p-5 border-t border-slate-200 bg-slate-50 flex gap-3">
+                <button onclick="closePointsModal()" class="flex-1 px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg font-bold hover:bg-slate-50 transition-colors">Hủy</button>
+                <button onclick="savePoints()" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700 shadow-sm flex items-center justify-center gap-2 transition-colors">
+                    <i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let supabaseUrl = '';
+        let supabaseKey = '';
+        let mySupabase; 
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initializeApp();
+        });
+
+        async function initializeApp() {
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/config');
+                const config = await response.json();
+                mySupabase = supabase.createClient(config.SUPABASE_URL, config.SUPABASE_KEY);
+                
+                await checkAuth();
+                fetchReviewingTasks(); 
+                fetchExpensesForAdmin();
+                fetchMembers(); // Lấy danh sách thành viên
+
+            } catch (error) {
+                alert("Lỗi kết nối máy chủ! Hãy đảm bảo uvicorn đang chạy.");
+            }
+        }
+
+        async function checkAuth() {
+            const { data: { user } } = await mySupabase.auth.getUser();
+            if (!user) return window.location.href = 'login.html';
+
+            const { data } = await mySupabase.from('profiles').select('full_name, role').eq('id', user.id).single();
+            if (data.role !== 'admin') window.location.href = 'login.html';
+            
+            document.getElementById('adminName').innerText = data.full_name || 'Admin';
+        }
+
+        // HÀM CHUYỂN TAB ADMIN
+        function switchTab(tabId, btnElement) {
+            // Ẩn hiện nội dung
+            document.querySelectorAll('.admin-tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            // Cập nhật màu nút Sidebar
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = 'nav-btn w-full flex items-center px-3 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-lg font-medium transition-colors';
+            });
+            btnElement.className = 'nav-btn w-full flex items-center px-3 py-2.5 bg-indigo-50 text-indigo-600 rounded-lg font-medium transition-colors';
+
+            // Đổi tên Header
+            const titles = {
+                'tab-reviews': 'Duyệt công việc',
+                'tab-expenses': 'Quản lý chi tiêu',
+                'tab-members': 'Quản lý thành viên'
+            };
+            document.getElementById('headerTitle').innerText = titles[tabId];
+        }
+
+        /* --- TÍNH NĂNG MỚI: QUẢN LÝ THÀNH VIÊN --- */
+        async function fetchMembers() {
+            const list = document.getElementById('memberList');
+            const { data, error } = await mySupabase
+                .from('profiles')
+                .select('*')
+                .order('role', { ascending: true }); // Xếp Admin lên đầu
+
+            if (error) return console.error(error);
+
+            document.getElementById('totalMembers').innerText = `${data.length} người`;
+            list.innerHTML = '';
+
+            data.forEach(user => {
+                const isMe = user.role === 'admin' ? '<span class="ml-2 text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full">Bạn</span>' : '';
+                const roleBadge = user.role === 'admin' 
+                    ? '<span class="px-2.5 py-1 bg-red-50 text-red-600 text-xs font-bold rounded border border-red-100">Quản trị viên</span>'
+                    : '<span class="px-2.5 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded border border-blue-100">Thành viên</span>';
+
+                list.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-600 text-xs">
+                                    ${user.full_name.charAt(0).toUpperCase()}
+                                </div>
+                                <span class="font-semibold text-slate-800">${user.full_name} ${isMe}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">${roleBadge}</td>
+                        <td class="px-6 py-4">
+                            <span class="text-amber-500 font-bold"><i class="fa-solid fa-star text-xs"></i> ${user.total_points || 0}</span>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <button onclick="editPoints('${user.id}', '${user.full_name}')" class="text-slate-400 hover:text-indigo-600 transition-colors mr-3" title="Thưởng/Phạt điểm">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // --- TÍNH NĂNG THƯỞNG PHẠT ĐIỂM ---
+        let currentEditUserId = null;
+
+        // Bật Modal
+        function editPoints(userId, name) {
+            currentEditUserId = userId;
+            document.getElementById('modalUserName').innerText = name;
+            document.getElementById('pointValue').value = ''; // Xóa trắng ô nhập cũ
+            
+            const modal = document.getElementById('pointsModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex'); // Bật modal lên giữa màn hình
+        }
+
+        // Tắt Modal
+        function closePointsModal() {
+            const modal = document.getElementById('pointsModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            currentEditUserId = null;
+        }
+
+        // Lưu điểm lên Database
+        async function savePoints() {
+            if (!currentEditUserId) return;
+            const delta = parseInt(document.getElementById('pointValue').value);
+            
+            if (isNaN(delta) || delta === 0) {
+                return alert('Vui lòng nhập một số hợp lệ (khác 0)!');
+            }
+
+            try {
+                // 1. Lấy số điểm HIỆN TẠI của người này trong Database
+                const { data: userData, error: fetchErr } = await mySupabase
+                    .from('profiles')
+                    .select('total_points')
+                    .eq('id', currentEditUserId)
+                    .single();
+                
+                if (fetchErr) throw fetchErr;
+
+                // 2. Cộng/Trừ để ra điểm mới
+                const newPoints = (userData.total_points || 0) + delta;
+
+                // 3. Cập nhật lại lên Database
+                const { error: updateErr } = await mySupabase
+                    .from('profiles')
+                    .update({ total_points: newPoints })
+                    .eq('id', currentEditUserId);
+
+                if (updateErr) throw updateErr;
+
+                alert(`✅ Đã cập nhật thành công! Tổng điểm mới: ${newPoints} ⭐`);
+                closePointsModal();
+                fetchMembers(); // Load lại bảng thành viên ngay lập tức để thấy số điểm nhảy
+                
+            } catch (err) {
+                alert('Lỗi hệ thống: ' + err.message);
+            }
+        }
+
+        // --- CÁC HÀM CŨ CỦA DUYỆT TASK (ĐƯỢC GIỮ NGUYÊN BÊN DƯỚI) ---
+        async function fetchReviewingTasks() {
+            const loading = document.getElementById('loading');
+            const grid = document.getElementById('taskGrid');
+            const emptyState = document.getElementById('emptyState');
+            loading.classList.remove('hidden'); grid.classList.add('hidden'); emptyState.classList.add('hidden');
+
+            const { data, error } = await mySupabase.from('assignments').select(`id, assigned_date, proof_image_url, tasks (title, points), profiles (full_name)`).eq('status', 'reviewing');
+            loading.classList.add('hidden');
+            if (error || data.length === 0) return emptyState.classList.remove('hidden');
+            grid.classList.remove('hidden'); renderTasks(data);
+        }
+
+        function renderTasks(assignments) {
+            const grid = document.getElementById('taskGrid');
+            grid.innerHTML = '';
+            assignments.forEach(item => {
+                const imgUrl = item.proof_image_url || 'https://images.unsplash.com/photo-1584820927498-cafe2c08a8bf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+                grid.innerHTML += `<div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col"><div class="h-48 bg-slate-100 relative group"><img src="${imgUrl}" class="w-full h-full object-cover"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><a href="${imgUrl}" target="_blank" class="px-4 py-2 bg-white/20 backdrop-blur-sm text-white rounded-lg text-sm font-medium hover:bg-white/30"><i class="fa-solid fa-expand mr-1"></i> Xem ảnh gốc</a></div></div><div class="p-5 flex-1"><div class="flex justify-between items-start mb-2"><div><h3 class="font-bold text-lg text-slate-800">${item.tasks.title}</h3><p class="text-sm text-slate-500 font-medium">${item.profiles.full_name}</p></div><span class="px-2.5 py-1 bg-amber-50 text-amber-600 text-xs font-bold rounded-md border border-amber-200">Chờ duyệt</span></div><div class="text-xs text-slate-400 mb-4"><i class="fa-regular fa-calendar"></i> Báo cáo: ${item.assigned_date}</div><div class="flex gap-2 mt-auto"><button onclick="updateTaskStatus('${item.id}', 'completed')" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 rounded-lg text-sm transition-colors shadow-sm"><i class="fa-solid fa-check mr-1"></i> Duyệt</button><button onclick="updateTaskStatus('${item.id}', 'pending')" class="flex-1 bg-red-50 hover:bg-red-100 text-red-600 font-medium py-2 rounded-lg text-sm transition-colors border border-red-200"><i class="fa-solid fa-xmark mr-1"></i> Bắt làm lại</button></div></div></div>`;
+            });
+        }
+
+        async function updateTaskStatus(assignmentId, newStatus) {
+            if (!confirm(newStatus === 'completed' ? 'Xác nhận hoàn thành?' : 'Từ chối?')) return;
+            const { error } = await mySupabase.from('assignments').update({ status: newStatus }).eq('id', assignmentId);
+            if (error) alert("Lỗi: " + error.message); else fetchReviewingTasks();
+        }
+
+        async function logout() { await mySupabase.auth.signOut(); window.location.href = 'login.html'; }
+
+        // XỬ LÝ DỮ LIỆU CHI TIÊU CHO ADMIN
+        async function fetchExpensesForAdmin() {
+            // 1. Lấy tất cả khoản chi chưa chốt sổ (is_settled = false)
+            const { data: expenses, error: expError } = await mySupabase
+                .from('expenses')
+                .select('*, profiles(full_name)')
+                .eq('is_settled', false)
+                .order('created_at', { ascending: false });
+
+            // 2. Lấy danh sách thành viên để chia đều
+            const { data: members, error: memError } = await mySupabase
+                .from('profiles')
+                .select('id, full_name')
+                .eq('role', 'member');
+
+            if (expError || memError) return console.error(expError || memError);
+
+            // Công cụ format tiền VNĐ
+            const formatVND = (amount) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+
+            // --- BƯỚC A: TÍNH TỔNG VÀ TRUNG BÌNH ---
+            let total = 0;
+            expenses.forEach(e => total += parseFloat(e.amount));
+            const avg = members.length > 0 ? total / members.length : 0;
+
+            document.getElementById('totalExpense').innerText = formatVND(total);
+            document.getElementById('avgExpense').innerText = formatVND(avg);
+            document.getElementById('expenseCount').innerText = expenses.length;
+
+            // --- BƯỚC B: TÍNH TOÁN AI NỢ AI (BALANCE) ---
+            let balances = {};
+            // Khởi tạo mỗi người 0 đồng
+            members.forEach(m => balances[m.id] = { name: m.full_name, spent: 0, net: 0 });
+            // Cộng dồn tiền đã chi
+            expenses.forEach(e => {
+                if(balances[e.payer_id]) balances[e.payer_id].spent += parseFloat(e.amount);
+            });
+
+            const balanceList = document.getElementById('balanceList');
+            balanceList.innerHTML = '';
+            
+            for (const [id, user] of Object.entries(balances)) {
+                user.net = user.spent - avg; // Tiền bỏ ra trừ đi tiền phải chịu
+                
+                let statusColor, statusText, icon;
+                if (user.net > 0) {
+                    statusColor = 'text-emerald-600 bg-emerald-50 border-emerald-200';
+                    statusText = `Nhận lại: ${formatVND(user.net)}`;
+                    icon = '<i class="fa-solid fa-arrow-turn-down"></i>';
+                } else if (user.net < 0) {
+                    statusColor = 'text-red-600 bg-red-50 border-red-200';
+                    statusText = `Cần đóng: ${formatVND(Math.abs(user.net))}`;
+                    icon = '<i class="fa-solid fa-arrow-turn-up"></i>';
+                } else {
+                    statusColor = 'text-slate-600 bg-slate-50 border-slate-200';
+                    statusText = 'Đã hòa vốn';
+                    icon = '<i class="fa-solid fa-check"></i>';
+                }
+
+                balanceList.innerHTML += `
+                    <li class="flex justify-between items-center p-4 rounded-xl border ${statusColor} transition-all">
+                        <div>
+                            <p class="font-bold text-lg">${user.name}</p>
+                            <p class="text-xs opacity-75">Đã chi trước: ${formatVND(user.spent)}</p>
+                        </div>
+                        <div class="font-black text-right">
+                            <span class="text-sm mr-1">${icon}</span> ${statusText}
+                        </div>
+                    </li>
+                `;
+            }
+
+            // --- BƯỚC C: HIỂN THỊ LỊCH SỬ ---
+            const historyList = document.getElementById('adminExpenseList');
+            historyList.innerHTML = '';
+            if (expenses.length === 0) {
+                historyList.innerHTML = '<li class="p-8 text-center text-slate-400 italic">Tháng này chưa ai mua gì.</li>';
+            } else {
+                expenses.forEach(e => {
+                    historyList.innerHTML += `
+                        <li class="p-4 hover:bg-slate-50 flex justify-between items-center transition-colors">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold">
+                                    ${e.profiles.full_name.charAt(0)}
+                                </div>
+                                <div>
+                                    <p class="font-bold text-slate-800">${e.description}</p>
+                                    <p class="text-xs text-slate-500">${e.category} • ${e.expense_date}</p>
+                                </div>
+                            </div>
+                            <div class="font-bold text-emerald-600">${formatVND(e.amount)}</div>
+                        </li>
+                    `;
+                });
+            }
+
+            
+        }
+
+        // XỬ LÝ NÚT CHỐT SỔ
+        async function settleExpenses() {
+            if(!confirm("Bạn có chắc chắn chốt sổ? Toàn bộ khoản chi tháng này sẽ được làm mới về 0.")) return;
+            
+            const { error } = await mySupabase
+                .from('expenses')
+                .update({ is_settled: true })
+                .eq('is_settled', false);
+
+            if(error) alert("Lỗi: " + error.message);
+            else {
+                alert("Đã chốt sổ thành công! Các thành viên có thể bắt đầu tháng mới.");
+                fetchExpensesForAdmin();
+            }
+        }
+    </script>
+</body>
+</html>
