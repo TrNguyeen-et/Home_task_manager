@@ -9,47 +9,51 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
-        .admin-tab { display:none; animation: fadeIn 0.3s ease-in-out; }
-        .admin-tab.active { display:block; }
-        @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-        @keyframes toastIn { from{transform:translateX(120%);opacity:0} to{transform:translateX(0);opacity:1} }
-        @keyframes toastOut { from{transform:translateX(0);opacity:1} to{transform:translateX(120%);opacity:0} }
-        .toast-in { animation: toastIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards; }
-        .toast-out { animation: toastOut 0.3s ease-in forwards; }
-        .sidebar-overlay { display:none; }
-        .sidebar-overlay.active { display:block; }
-        @media (max-width: 767px) {
-            #sidebar { position:fixed; left:-280px; top:0; bottom:0; z-index:40; transition:left 0.3s cubic-bezier(0.16,1,0.3,1); }
-            #sidebar.open { left:0; }
-        }
-        .task-card:hover .task-img { transform: scale(1.05); }
-        .task-img { transition: transform 0.5s ease; }
-        @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.4} }
-        .pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
+        body{font-family:'Inter',sans-serif;background:#f1f5f9}
+        .admin-tab{display:none;animation:fadeIn .3s ease-in-out}
+        .admin-tab.active{display:block}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes toastIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+        @keyframes toastOut{from{transform:translateX(0);opacity:1}to{transform:translateX(120%);opacity:0}}
+        .toast-in{animation:toastIn .4s cubic-bezier(.16,1,.3,1) forwards}
+        .toast-out{animation:toastOut .3s ease-in forwards}
+        .sidebar-overlay{display:none}
+        .sidebar-overlay.active{display:block}
+        @media(max-width:767px){#sidebar{position:fixed;left:-280px;top:0;bottom:0;z-index:40;transition:left .3s cubic-bezier(.16,1,.3,1)}#sidebar.open{left:0}}
+        .task-card:hover .task-img{transform:scale(1.05)}
+        .task-img{transition:transform .5s ease}
+        @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}
+        .pulse-dot{animation:pulse-dot 2s ease-in-out infinite}
+        .freq-daily{background:#dbeafe;color:#2563eb;border-color:#bfdbfe}
+        .freq-weekly{background:#fef3c7;color:#d97706;border-color:#fde68a}
+        .freq-monthly{background:#fce7f3;color:#db2777;border-color:#fbcfe8}
     </style>
 </head>
 <body class="flex h-screen overflow-hidden text-slate-800">
 
-    <!-- Mobile Overlay -->
     <div id="sidebarOverlay" class="sidebar-overlay fixed inset-0 bg-black/40 backdrop-blur-sm z-30" onclick="closeSidebar()"></div>
 
-    <!-- Sidebar -->
     <aside id="sidebar" class="w-64 bg-white border-r border-slate-200 flex flex-col z-40">
         <div class="h-16 flex items-center px-6 border-b border-slate-100">
             <i class="fa-solid fa-house-chimney-user text-indigo-600 text-xl mr-3"></i>
             <span class="text-lg font-extrabold text-slate-900 tracking-tight">AdminPanel</span>
         </div>
         <div class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-            <button onclick="switchTab('tab-reviews', this)" class="nav-btn w-full flex items-center px-3 py-2.5 bg-indigo-50 text-indigo-600 rounded-xl font-semibold text-sm transition-colors">
+            <button onclick="switchTab('tab-scheduler',this)" class="nav-btn w-full flex items-center px-3 py-2.5 bg-indigo-50 text-indigo-600 rounded-xl font-semibold text-sm transition-colors">
+                <i class="fa-solid fa-wand-magic-sparkles w-6 text-center"></i> Phân việc
+            </button>
+            <button onclick="switchTab('tab-tasks',this)" class="nav-btn w-full flex items-center px-3 py-2.5 text-slate-500 hover:bg-slate-50 hover:text-slate-800 rounded-xl font-semibold text-sm transition-colors">
+                <i class="fa-solid fa-list-check w-6 text-center"></i> Quản lý việc
+            </button>
+            <button onclick="switchTab('tab-reviews',this)" class="nav-btn w-full flex items-center px-3 py-2.5 text-slate-500 hover:bg-slate-50 hover:text-slate-800 rounded-xl font-semibold text-sm transition-colors">
                 <i class="fa-solid fa-clipboard-check w-6 text-center"></i> Duyệt công việc
                 <span id="reviewBadge" class="ml-auto bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full hidden">0</span>
             </button>
-            <button onclick="switchTab('tab-expenses', this)" class="nav-btn w-full flex items-center px-3 py-2.5 text-slate-500 hover:bg-slate-50 hover:text-slate-800 rounded-xl font-semibold text-sm transition-colors">
-                <i class="fa-solid fa-money-bill-transfer w-6 text-center"></i> Quản lý chi tiêu
+            <button onclick="switchTab('tab-expenses',this)" class="nav-btn w-full flex items-center px-3 py-2.5 text-slate-500 hover:bg-slate-50 hover:text-slate-800 rounded-xl font-semibold text-sm transition-colors">
+                <i class="fa-solid fa-money-bill-transfer w-6 text-center"></i> Chi tiêu
             </button>
-            <button onclick="switchTab('tab-members', this)" class="nav-btn w-full flex items-center px-3 py-2.5 text-slate-500 hover:bg-slate-50 hover:text-slate-800 rounded-xl font-semibold text-sm transition-colors">
-                <i class="fa-solid fa-users w-6 text-center"></i> Quản lý thành viên
+            <button onclick="switchTab('tab-members',this)" class="nav-btn w-full flex items-center px-3 py-2.5 text-slate-500 hover:bg-slate-50 hover:text-slate-800 rounded-xl font-semibold text-sm transition-colors">
+                <i class="fa-solid fa-users w-6 text-center"></i> Thành viên
             </button>
         </div>
         <div class="p-4 border-t border-slate-100">
@@ -59,19 +63,16 @@
         </div>
     </aside>
 
-    <!-- Main Content -->
     <main class="flex-1 flex flex-col h-full overflow-hidden">
-        <header class="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200/80 flex items-center justify-between px-4 md:px-6 z-20 sticky top-0">
+        <header class="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200/80 flex items-center justify-between px-4 md:px-6 z-20">
             <div class="flex items-center gap-3">
-                <button onclick="openSidebar()" class="md:hidden w-10 h-10 flex items-center justify-center text-slate-600 hover:bg-slate-100 rounded-xl transition-colors">
-                    <i class="fa-solid fa-bars text-lg"></i>
-                </button>
-                <h1 class="text-lg font-bold text-slate-800" id="headerTitle">Duyệt công việc</h1>
+                <button onclick="openSidebar()" class="md:hidden w-10 h-10 flex items-center justify-center text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"><i class="fa-solid fa-bars text-lg"></i></button>
+                <h1 class="text-lg font-bold text-slate-800" id="headerTitle">Phân việc tự động</h1>
             </div>
             <div class="flex items-center gap-3">
                 <div class="text-right hidden sm:block">
-                    <p class="text-sm font-bold text-slate-900" id="adminName">Đang tải...</p>
-                    <p class="text-[11px] text-slate-400 font-medium">Quản trị viên</p>
+                    <p class="text-sm font-bold text-slate-900" id="adminName">...</p>
+                    <p class="text-[11px] text-slate-400">Admin</p>
                 </div>
                 <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-md shadow-indigo-200">A</div>
             </div>
@@ -79,396 +80,374 @@
 
         <div class="flex-1 overflow-y-auto p-4 md:p-6">
 
-            <!-- TAB: Duyệt công việc -->
-            <section id="tab-reviews" class="admin-tab active">
-                <div id="loading" class="flex flex-col items-center justify-center py-20">
-                    <div class="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
-                    <p class="text-slate-400 text-sm">Đang tải danh sách chờ duyệt...</p>
-                </div>
-                <div id="taskGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 hidden"></div>
-                <div id="emptyState" class="hidden flex flex-col items-center justify-center py-20 text-center">
-                    <div class="w-24 h-24 bg-emerald-50 rounded-3xl flex items-center justify-center text-emerald-400 mb-5">
-                        <i class="fa-solid fa-mug-hot text-4xl"></i>
+            <!-- ===== TAB: PHÂN VIỆC ===== -->
+            <section id="tab-scheduler" class="admin-tab active">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 mb-5">
+                    <h2 class="font-bold text-slate-800 mb-1 flex items-center gap-2 text-sm"><i class="fa-solid fa-calendar-day text-indigo-500"></i> Chọn ngày cần phân việc</h2>
+                    <p class="text-xs text-slate-400 mb-4">Việc hàng ngày luôn có. Việc tuần/tháng chỉ xuất hiện nếu chưa giao trong kỳ.</p>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <input type="date" id="scheduleDate" class="flex-1 px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                        <div class="flex gap-2">
+                            <button onclick="previewSchedule()" class="flex-1 sm:flex-none bg-indigo-50 text-indigo-600 font-bold px-5 py-3 rounded-xl hover:bg-indigo-100 transition-colors text-sm flex items-center justify-center gap-2"><i class="fa-solid fa-eye"></i> Xem trước</button>
+                            <button onclick="confirmSchedule()" class="flex-1 sm:flex-none bg-indigo-600 text-white font-bold px-5 py-3 rounded-xl hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-200 text-sm flex items-center justify-center gap-2"><i class="fa-solid fa-wand-magic-sparkles"></i> Phân việc</button>
+                        </div>
                     </div>
-                    <h3 class="text-lg font-bold text-slate-800">Tuyệt vời!</h3>
-                    <p class="text-slate-400 text-sm mt-1">Không còn việc nào chờ duyệt.</p>
                 </div>
-            </section>
-
-            <!-- TAB: Quản lý thành viên -->
-            <section id="tab-members" class="admin-tab">
+                <div id="previewResult" class="hidden mb-5"></div>
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                     <div class="p-5 border-b border-slate-100 flex justify-between items-center">
-                        <h2 class="font-bold text-slate-800">Danh sách thành viên</h2>
-                        <span class="bg-indigo-50 text-indigo-600 text-xs font-bold px-3 py-1.5 rounded-lg" id="totalMembers">0 người</span>
+                        <h2 class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-calendar-week text-indigo-500 mr-2"></i>Lịch cả tuần</h2>
+                        <button onclick="loadWeeklyView()" class="text-indigo-500 hover:text-indigo-700 text-xs font-bold flex items-center gap-1"><i class="fa-solid fa-rotate"></i> Tải lại</button>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left">
-                            <thead>
-                                <tr class="text-[11px] text-slate-400 uppercase tracking-wider border-b border-slate-100 bg-slate-50/50">
-                                    <th class="px-6 py-3.5 font-semibold">Thành viên</th>
-                                    <th class="px-6 py-3.5 font-semibold">Vai trò</th>
-                                    <th class="px-6 py-3.5 font-semibold">Điểm tích lũy</th>
-                                    <th class="px-6 py-3.5 font-semibold text-right">Hành động</th>
-                                </tr>
-                            </thead>
-                            <tbody id="memberList" class="divide-y divide-slate-50"></tbody>
-                        </table>
-                    </div>
+                    <div id="weeklyView" class="p-4"><div class="text-center py-8 text-slate-300 text-sm"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Đang tải...</div></div>
                 </div>
             </section>
 
-            <!-- TAB: Quản lý chi tiêu -->
-            <section id="tab-expenses" class="admin-tab">
-                <!-- Tổng quan -->
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-6">
-                    <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                        <h2 class="font-bold text-slate-800">Tổng quan chi tiêu (Chưa quyết toán)</h2>
-                        <button onclick="settleExpenses()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-md shadow-emerald-200 flex items-center gap-2">
-                            <i class="fa-solid fa-check-double"></i> Chốt sổ tháng này
-                        </button>
+            <!-- ===== TAB: QUẢN LÝ VIỆC ===== -->
+            <section id="tab-tasks" class="admin-tab">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-5">
+                    <div>
+                        <h2 class="font-bold text-slate-800 text-sm">Danh sách công việc</h2>
+                        <p class="text-xs text-slate-400">Thêm/sửa/xóa công việc trong hệ thống</p>
                     </div>
-                    <div class="p-6 grid grid-cols-1 sm:grid-cols-3 gap-5">
-                        <div class="bg-slate-50 p-5 rounded-xl border border-slate-100 text-center">
-                            <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-2">Tổng chi tiêu</p>
-                            <p class="text-2xl font-extrabold text-slate-800" id="totalExpense">0 ₫</p>
-                        </div>
-                        <div class="bg-indigo-50 p-5 rounded-xl border border-indigo-100 text-center">
-                            <p class="text-xs text-indigo-400 font-semibold uppercase tracking-wider mb-2">Bình quân/người</p>
-                            <p class="text-2xl font-extrabold text-indigo-700" id="avgExpense">0 ₫</p>
-                        </div>
-                        <div class="bg-amber-50 p-5 rounded-xl border border-amber-100 text-center">
-                            <p class="text-xs text-amber-400 font-semibold uppercase tracking-wider mb-2">Số khoản chi</p>
-                            <p class="text-2xl font-extrabold text-amber-700" id="expenseCount">0</p>
-                        </div>
+                    <div class="flex gap-2">
+                        <button onclick="seedDefaults()" class="bg-slate-100 text-slate-600 font-bold px-4 py-2.5 rounded-xl hover:bg-slate-200 transition-colors text-xs flex items-center gap-1.5"><i class="fa-solid fa-rotate-left"></i> Reset mặc định</button>
+                        <button onclick="openTaskModal()" class="bg-indigo-600 text-white font-bold px-4 py-2.5 rounded-xl hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-200 text-xs flex items-center gap-1.5"><i class="fa-solid fa-plus"></i> Thêm việc</button>
                     </div>
                 </div>
+                <div id="taskManagerList" class="space-y-2"><div class="text-center py-8 text-slate-300 text-sm"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Đang tải...</div></div>
+            </section>
 
+            <!-- ===== TAB: DUYỆT ===== -->
+            <section id="tab-reviews" class="admin-tab">
+                <div id="loading" class="flex flex-col items-center justify-center py-20"><div class="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div><p class="text-slate-400 text-sm">Đang tải...</p></div>
+                <div id="taskGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 hidden"></div>
+                <div id="emptyState" class="hidden flex flex-col items-center justify-center py-20 text-center"><div class="w-24 h-24 bg-emerald-50 rounded-3xl flex items-center justify-center text-emerald-400 mb-5"><i class="fa-solid fa-mug-hot text-4xl"></i></div><h3 class="text-lg font-bold text-slate-800">Tuyệt vời!</h3><p class="text-slate-400 text-sm mt-1">Không có việc chờ duyệt.</p></div>
+            </section>
+
+            <!-- ===== TAB: CHI TIÊU ===== -->
+            <section id="tab-expenses" class="admin-tab">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-6">
+                    <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <h2 class="font-bold text-slate-800 text-sm">Tổng quan chi tiêu</h2>
+                        <button onclick="settleExpenses()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-md shadow-emerald-200 flex items-center gap-2"><i class="fa-solid fa-check-double"></i> Chốt sổ</button>
+                    </div>
+                    <div class="p-6 grid grid-cols-1 sm:grid-cols-3 gap-5">
+                        <div class="bg-slate-50 p-5 rounded-xl border border-slate-100 text-center"><p class="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-2">Tổng chi</p><p class="text-2xl font-extrabold text-slate-800" id="totalExpense">0 ₫</p></div>
+                        <div class="bg-indigo-50 p-5 rounded-xl border border-indigo-100 text-center"><p class="text-xs text-indigo-400 font-semibold uppercase tracking-wider mb-2">Bình quân</p><p class="text-2xl font-extrabold text-indigo-700" id="avgExpense">0 ₫</p></div>
+                        <div class="bg-amber-50 p-5 rounded-xl border border-amber-100 text-center"><p class="text-xs text-amber-400 font-semibold uppercase tracking-wider mb-2">Số khoản</p><p class="text-2xl font-extrabold text-amber-700" id="expenseCount">0</p></div>
+                    </div>
+                </div>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- Cân đối -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden h-fit">
-                        <div class="p-5 border-b border-slate-100">
-                            <h3 class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-scale-balanced text-indigo-500 mr-2"></i>Tình trạng cân đối</h3>
-                        </div>
-                        <div class="p-5"><ul id="balanceList" class="space-y-3"><li class="text-center text-slate-300 py-8 italic text-sm">Đang tải...</li></ul></div>
-                    </div>
-                    <!-- Lịch sử -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                        <div class="p-5 border-b border-slate-100">
-                            <h3 class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-receipt text-slate-400 mr-2"></i>Lịch sử khai báo</h3>
-                        </div>
-                        <div class="overflow-y-auto max-h-[420px]"><ul id="adminExpenseList" class="divide-y divide-slate-50"></ul></div>
-                    </div>
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden h-fit"><div class="p-5 border-b border-slate-100"><h3 class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-scale-balanced text-indigo-500 mr-2"></i>Cân đối</h3></div><div class="p-5"><ul id="balanceList" class="space-y-3"><li class="text-center text-slate-300 py-8 italic text-sm">Đang tải...</li></ul></div></div>
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden"><div class="p-5 border-b border-slate-100"><h3 class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-receipt text-slate-400 mr-2"></i>Lịch sử</h3></div><div class="overflow-y-auto max-h-[420px]"><ul id="adminExpenseList" class="divide-y divide-slate-50"></ul></div></div>
+                </div>
+            </section>
+
+            <!-- ===== TAB: THÀNH VIÊN ===== -->
+            <section id="tab-members" class="admin-tab">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="p-5 border-b border-slate-100 flex justify-between items-center"><h2 class="font-bold text-slate-800 text-sm">Thành viên</h2><span class="bg-indigo-50 text-indigo-600 text-xs font-bold px-3 py-1.5 rounded-lg" id="totalMembers">0</span></div>
+                    <div class="overflow-x-auto"><table class="w-full text-left"><thead><tr class="text-[11px] text-slate-400 uppercase tracking-wider border-b border-slate-100 bg-slate-50/50"><th class="px-6 py-3.5 font-semibold">Tên</th><th class="px-6 py-3.5 font-semibold">Vai trò</th><th class="px-6 py-3.5 font-semibold">Điểm</th><th class="px-6 py-3.5 font-semibold text-right">Hành động</th></tr></thead><tbody id="memberList" class="divide-y divide-slate-50"></tbody></table></div>
                 </div>
             </section>
 
         </div>
     </main>
 
-    <!-- Modal Điều chỉnh điểm -->
-    <div id="pointsModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50">
+    <!-- Modal: Thêm/Sửa task -->
+    <div id="taskModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
             <div class="p-5 border-b border-slate-100 flex justify-between items-center">
-                <h3 class="font-bold text-slate-800">Điều chỉnh điểm</h3>
-                <button onclick="closePointsModal()" class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><i class="fa-solid fa-xmark"></i></button>
+                <h3 class="font-bold text-slate-800" id="taskModalTitle">Thêm việc mới</h3>
+                <button onclick="closeTaskModal()" class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="p-6">
-                <p class="text-sm text-slate-500 mb-4">Đang điều chỉnh cho: <strong id="modalUserName" class="text-indigo-600">...</strong></p>
-                <label class="block text-sm font-medium text-slate-700 mb-1">Số điểm <span class="text-slate-400 font-normal">(Dùng dấu - để phạt)</span></label>
-                <input type="number" id="pointValue" placeholder="VD: 10 hoặc -5" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-lg font-bold">
+            <div class="p-6 space-y-4">
+                <input type="hidden" id="editTaskId">
+                <div><label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Tên việc</label><input type="text" id="taskTitle" required placeholder="VD: Rửa chén" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm"></div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Thời gian (phút)</label><input type="number" id="taskDuration" value="30" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm"></div>
+                    <div><label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Điểm thưởng</label><input type="number" id="taskPoints" value="5" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm"></div>
+                </div>
+                <div><label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Tần suất</label>
+                    <select id="taskFrequency" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none bg-white text-sm">
+                        <option value="daily">Hàng ngày (mỗi ngày đều có)</option>
+                        <option value="weekly">Hàng tuần (1 lần/tuần)</option>
+                        <option value="monthly">Hàng tháng (1 lần/tháng)</option>
+                    </select>
+                </div>
+                <div><label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Ca ưu tiên</label>
+                    <select id="taskSlot" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none bg-white text-sm">
+                        <option value="">Bất kỳ ca nào</option>
+                        <option value="Morning">Sáng</option>
+                        <option value="Afternoon">Chiều</option>
+                        <option value="Evening">Tối</option>
+                    </select>
+                </div>
             </div>
             <div class="p-5 border-t border-slate-100 flex gap-3 bg-slate-50">
-                <button onclick="closePointsModal()" class="flex-1 px-4 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl font-bold hover:bg-slate-50 transition-colors text-sm">Hủy</button>
-                <button onclick="savePoints()" class="flex-1 px-4 py-2.5 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow-sm flex items-center justify-center gap-2 transition-colors text-sm">
-                    <i class="fa-solid fa-floppy-disk"></i> Lưu
-                </button>
+                <button onclick="closeTaskModal()" class="flex-1 px-4 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl font-bold hover:bg-slate-50 text-sm">Hủy</button>
+                <button onclick="saveTask()" class="flex-1 px-4 py-2.5 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow-sm flex items-center justify-center gap-2 text-sm"><i class="fa-solid fa-floppy-disk"></i> Lưu</button>
             </div>
         </div>
     </div>
 
-    <!-- Toast Container -->
+    <!-- Modal: Điều chỉnh điểm -->
+    <div id="pointsModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center"><h3 class="font-bold text-slate-800">Điều chỉnh điểm</h3><button onclick="closePointsModal()" class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><i class="fa-solid fa-xmark"></i></button></div>
+            <div class="p-6"><p class="text-sm text-slate-500 mb-4">Đang điều chỉnh: <strong id="modalUserName" class="text-indigo-600">...</strong></p><label class="block text-sm font-medium text-slate-700 mb-1">Số điểm <span class="text-slate-400 font-normal">(dấu - để phạt)</span></label><input type="number" id="pointValue" placeholder="10 hoặc -5" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-lg font-bold"></div>
+            <div class="p-5 border-t border-slate-100 flex gap-3 bg-slate-50">
+                <button onclick="closePointsModal()" class="flex-1 px-4 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl font-bold hover:bg-slate-50 text-sm">Hủy</button>
+                <button onclick="savePoints()" class="flex-1 px-4 py-2.5 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow-sm flex items-center justify-center gap-2 text-sm"><i class="fa-solid fa-floppy-disk"></i> Lưu</button>
+            </div>
+        </div>
+    </div>
+
     <div id="toastContainer" class="fixed top-5 right-5 z-[60] flex flex-col gap-3 max-w-sm w-full pointer-events-none"></div>
 
 <script>
-    let mySupabase;
-    let currentUser = null;
+    const API='https://home-task-manager.onrender.com';
+    let mySupabase,currentUser=null;
 
-    // ===================== TOAST SYSTEM =====================
-    function showToast(message, type = 'info') {
-        const container = document.getElementById('toastContainer');
-        const cfg = {
-            error:   { bg:'bg-red-500',       icon:'fa-circle-exclamation' },
-            success: { bg:'bg-emerald-500',    icon:'fa-circle-check' },
-            info:    { bg:'bg-indigo-500',     icon:'fa-circle-info' },
-            warning: { bg:'bg-amber-500',      icon:'fa-triangle-exclamation' }
-        }[type] || { bg:'bg-slate-700', icon:'fa-circle-info' };
-        const t = document.createElement('div');
-        t.className = `pointer-events-auto ${cfg.bg} text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-3 toast-in text-sm font-medium`;
-        t.innerHTML = `<i class="fa-solid ${cfg.icon}"></i><span class="flex-1">${message}</span><button onclick="this.parentElement.remove()" class="opacity-60 hover:opacity-100 ml-2"><i class="fa-solid fa-xmark text-xs"></i></button>`;
-        container.appendChild(t);
-        setTimeout(() => { t.classList.replace('toast-in','toast-out'); setTimeout(() => t.remove(), 300); }, 4000);
+    function showToast(msg,type='info'){
+        const c=document.getElementById('toastContainer');
+        const cfg={error:{bg:'bg-red-500',ic:'fa-circle-exclamation'},success:{bg:'bg-emerald-500',ic:'fa-circle-check'},info:{bg:'bg-indigo-500',ic:'fa-circle-info'},warning:{bg:'bg-amber-500',ic:'fa-triangle-exclamation'}}[type]||{bg:'bg-slate-700',ic:'fa-circle-info'};
+        const t=document.createElement('div');
+        t.className=`pointer-events-auto ${cfg.bg} text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-3 toast-in text-sm font-medium`;
+        t.innerHTML=`<i class="fa-solid ${cfg.ic}"></i><span class="flex-1">${msg}</span><button onclick="this.parentElement.remove()" class="opacity-60 hover:opacity-100"><i class="fa-solid fa-xmark text-xs"></i></button>`;
+        c.appendChild(t);setTimeout(()=>{t.classList.replace('toast-in','toast-out');setTimeout(()=>t.remove(),300);},4000);
     }
 
-    // ===================== SIDEBAR MOBILE =====================
-    function openSidebar() {
-        document.getElementById('sidebar').classList.add('open');
-        document.getElementById('sidebarOverlay').classList.add('active');
-    }
-    function closeSidebar() {
-        document.getElementById('sidebar').classList.remove('open');
-        document.getElementById('sidebarOverlay').classList.remove('active');
-    }
+    function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('sidebarOverlay').classList.add('active')}
+    function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebarOverlay').classList.remove('active')}
 
-    // ===================== INIT =====================
-    document.addEventListener('DOMContentLoaded', async () => {
-        try {
-            const res = await fetch('https://home-task-manager.onrender.com/api/config');
-            const cfg = await res.json();
-            mySupabase = supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_KEY);
+    document.addEventListener('DOMContentLoaded',async()=>{
+        try{
+            const r=await fetch(`${API}/api/config`);const cfg=await r.json();
+            mySupabase=supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_KEY);
             await checkAuth();
-            fetchReviewingTasks();
-            fetchExpensesForAdmin();
-            fetchMembers();
-        } catch (e) {
-            showToast('Lỗi kết nối máy chủ!', 'error');
-        }
+            document.getElementById('scheduleDate').value=new Date().toISOString().split('T')[0];
+            loadWeeklyView();fetchTasks();fetchReviewingTasks();fetchExpensesForAdmin();fetchMembers();
+        }catch(e){showToast('Lỗi kết nối!','error')}
     });
 
-    async function checkAuth() {
-        const { data: { user } } = await mySupabase.auth.getUser();
-        if (!user) return window.location.href = 'login.html';
-        const { data } = await mySupabase.from('profiles').select('full_name, role, id').eq('id', user.id).single();
-        if (!data || data.role !== 'admin') return window.location.href = 'login.html';
-        currentUser = data;
-        document.getElementById('adminName').innerText = data.full_name || 'Admin';
+    async function checkAuth(){
+        const{data:{user}}=await mySupabase.auth.getUser();if(!user)return window.location.href='login.html';
+        const{data}=await mySupabase.from('profiles').select('full_name,role,id').eq('id',user.id).single();
+        if(!data||data.role!=='admin')return window.location.href='login.html';
+        currentUser=data;document.getElementById('adminName').innerText=data.full_name||'Admin';
     }
 
-    // ===================== TAB SWITCH =====================
-    function switchTab(tabId, btn) {
-        document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        document.querySelectorAll('.nav-btn').forEach(b => {
-            b.className = 'nav-btn w-full flex items-center px-3 py-2.5 text-slate-500 hover:bg-slate-50 hover:text-slate-800 rounded-xl font-semibold text-sm transition-colors';
-        });
-        btn.className = 'nav-btn w-full flex items-center px-3 py-2.5 bg-indigo-50 text-indigo-600 rounded-xl font-semibold text-sm transition-colors';
-        const titles = { 'tab-reviews':'Duyệt công việc', 'tab-expenses':'Quản lý chi tiêu', 'tab-members':'Quản lý thành viên' };
-        document.getElementById('headerTitle').innerText = titles[tabId];
-        closeSidebar();
+    function switchTab(id,btn){
+        document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));document.getElementById(id).classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(b=>{b.className='nav-btn w-full flex items-center px-3 py-2.5 text-slate-500 hover:bg-slate-50 hover:text-slate-800 rounded-xl font-semibold text-sm transition-colors'});
+        btn.className='nav-btn w-full flex items-center px-3 py-2.5 bg-indigo-50 text-indigo-600 rounded-xl font-semibold text-sm transition-colors';
+        const t={'tab-scheduler':'Phân việc tự động','tab-tasks':'Quản lý việc','tab-reviews':'Duyệt công việc','tab-expenses':'Chi tiêu','tab-members':'Thành viên'};
+        document.getElementById('headerTitle').innerText=t[id];closeSidebar();
+        if(id==='tab-scheduler')loadWeeklyView();if(id==='tab-reviews')fetchReviewingTasks();if(id==='tab-tasks')fetchTasks();
     }
 
-    // ===================== DUYỆT CÔNG VIỆC (ĐÃ SỬA: CỘNG ĐIỂM) =====================
-    async function fetchReviewingTasks() {
-        const loading = document.getElementById('loading');
-        const grid = document.getElementById('taskGrid');
-        const empty = document.getElementById('emptyState');
-        loading.classList.remove('hidden'); grid.classList.add('hidden'); empty.classList.add('hidden');
-
-        const { data, error } = await mySupabase
-            .from('assignments')
-            .select(`id, assigned_date, proof_image_url, tasks(title, points), profiles(full_name)`)
-            .eq('status', 'reviewing');
-
-        loading.classList.add('hidden');
-        if (error || !data || data.length === 0) return empty.classList.remove('hidden');
-
-        // Cập nhật badge số lượng
-        const badge = document.getElementById('reviewBadge');
-        badge.textContent = data.length;
-        badge.classList.remove('hidden');
-
-        grid.classList.remove('hidden');
-        renderTasks(data);
+    // ===================== SCHEDULER =====================
+    async function previewSchedule(){
+        const d=document.getElementById('scheduleDate').value;if(!d)return showToast('Chọn ngày!','warning');
+        const box=document.getElementById('previewResult');box.classList.remove('hidden');
+        box.innerHTML='<div class="bg-white rounded-2xl border border-slate-200 p-8 text-center"><div class="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-3"></div></div>';
+        try{const r=await fetch(`${API}/preview-algorithm`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date:d})});const data=await r.json();renderPreview(box,data);}
+        catch(e){box.innerHTML=`<div class="bg-red-50 rounded-2xl border border-red-200 p-6 text-center text-red-600 font-bold text-sm">Lỗi kết nối</div>`}
     }
 
-    function renderTasks(assignments) {
-        const grid = document.getElementById('taskGrid');
-        grid.innerHTML = '';
-        assignments.forEach(item => {
-            const img = item.proof_image_url || 'https://picsum.photos/seed/default/600/400';
-            const pts = item.tasks.points || 0;
-            grid.innerHTML += `
-            <div class="task-card bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col hover:shadow-md transition-shadow">
-                <div class="h-48 bg-slate-100 relative overflow-hidden cursor-pointer" onclick="window.open('${img}','_blank')">
-                    <img src="${img}" class="task-img w-full h-full object-cover" loading="lazy">
-                    <div class="absolute top-3 right-3">
-                        <span class="bg-black/60 backdrop-blur-sm text-white text-xs font-bold px-2.5 py-1 rounded-lg">+${pts} điểm</span>
+    function renderPreview(box,d){
+        const sI={Morning:'fa-sun text-amber-400',Afternoon:'fa-cloud-sun text-orange-400',Evening:'fa-moon text-indigo-400'};
+        const sL={Morning:'Sáng',Afternoon:'Chiều',Evening:'Tối'};
+        const dL={Monday:'Thứ 2',Tuesday:'Thứ 3',Wednesday:'Thứ 4',Thursday:'Thứ 5',Friday:'Thứ 6',Saturday:'Thứ 7',Sunday:'CN'};
+        if(!d.success){box.innerHTML=`<div class="bg-amber-50 rounded-2xl border border-amber-200 p-6 text-center"><i class="fa-solid fa-circle-info text-amber-400 text-2xl mb-2 block"></i><p class="text-amber-700 font-bold text-sm">${d.message}</p>${d.already_existed?`<p class="text-amber-500 text-xs mt-1">${d.already_existed} việc đã có sẵn</p>`:''}</div>`;return}
+        const items=d.assignments||[];
+        let h=`<div class="bg-gradient-to-br from-indigo-500 to-violet-600 p-0.5 rounded-2xl"><div class="bg-white rounded-xl p-5">`;
+        h+=`<div class="flex justify-between items-center mb-4"><h3 class="font-bold text-indigo-600 text-sm"><i class="fa-solid fa-eye mr-2"></i>Preview: ${dL[d.day]||d.day} (${d.date})</h3><span class="text-[10px] bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full font-bold">+${items.length} việc mới</span></div>`;
+        h+=`<div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">`;
+        for(const slot of['Morning','Afternoon','Evening']){
+            const tasks=items.filter(t=>t.slot===slot);
+            h+=`<div class="bg-slate-50 rounded-xl p-3 border border-slate-100"><div class="flex items-center gap-2 mb-2"><i class="fa-solid ${sI[slot]} text-sm"></i><span class="font-bold text-xs text-slate-600 uppercase">${sL[slot]}</span><span class="text-[10px] text-slate-400">(${tasks.length})</span></div>`;
+            if(!tasks.length)h+=`<p class="text-slate-300 text-xs italic">Trống</p>`;
+            tasks.forEach(t=>{h+=`<div class="bg-white rounded-lg p-2 mb-1.5 border border-slate-100 text-xs"><p class="font-semibold text-slate-700">${t.task_title}</p><p class="text-slate-400 mt-0.5">→ <span class="text-indigo-500 font-medium">${t.assigned_to}</span> <span class="text-amber-400">+${t.task_points}đ</span></p></div>`});
+            h+=`</div>`;
+        }
+        h+=`</div>`;
+        if(d.summary){h+=`<div class="border-t border-slate-100 pt-3"><p class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Tải mỗi người</p><div class="flex flex-wrap gap-2">`;for(const[uid,info]of Object.entries(d.summary)){h+=`<span class="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg text-xs font-bold">${info.name}: ${info.task_count} việc / ${info.total_minutes}p</span>`}h+=`</div></div>`}
+        h+=`</div></div>`;box.innerHTML=h;
+    }
+
+    async function confirmSchedule(){
+        const d=document.getElementById('scheduleDate').value;if(!d)return showToast('Chọn ngày!','warning');
+        try{const r=await fetch(`${API}/run-algorithm`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date:d})});const data=await r.json();
+        if(data.success){showToast(data.message,'success');document.getElementById('previewResult').classList.add('hidden');loadWeeklyView()}else showToast(data.message,'warning')}
+        catch(e){showToast('Lỗi kết nối!','error')}
+    }
+
+    async function loadWeeklyView(){
+        const box=document.getElementById('weeklyView');
+        try{const r=await fetch(`${API}/weekly-schedule`);const d=await r.json();
+        const dL={Monday:'T2',Tuesday:'T3',Wednesday:'T4',Thursday:'T5',Friday:'T6',Saturday:'T7',Sunday:'CN'};
+        const sL={Morning:'Sáng',Afternoon:'Chiều',Evening:'Tối'};
+        const sC={Morning:'bg-amber-50 border-amber-100 text-amber-700',Afternoon:'bg-orange-50 border-orange-100 text-orange-700',Evening:'bg-indigo-50 border-indigo-100 text-indigo-700'};
+        const fC={daily:'freq-daily',weekly:'freq-weekly',monthly:'freq-monthly'};
+        const fL={daily:'Ngày',weekly:'Tuần',monthly:'Tháng'};
+        let h=`<div class="space-y-3">`;
+        for(const[ds,day]of Object.entries(d.days)){
+            const isT=day.is_today,has=day.assignments.length>0;
+            h+=`<div class="rounded-xl border ${isT?'border-indigo-200 bg-indigo-50/30 shadow-md shadow-indigo-100':'border-slate-100 bg-white'} p-4">`;
+            h+=`<div class="flex justify-between items-center mb-2"><div class="flex items-center gap-2"><span class="font-bold text-sm ${isT?'text-indigo-600':'text-slate-700'}">${dL[day.day]||day.day}</span><span class="text-xs text-slate-400">${day.date_label}</span>${isT?'<span class="text-[10px] bg-indigo-500 text-white px-2 py-0.5 rounded-full font-bold">Hôm nay</span>':''}</div>${has?`<button onclick="clearDay('${ds}')" class="text-[10px] text-red-400 hover:text-red-600 font-bold flex items-center gap-1"><i class="fa-solid fa-trash-can"></i>Xóa</button>`:''}</div>`;
+            if(!has){h+=`<p class="text-xs text-slate-300 italic">Chưa phân việc</p>`}
+            else{
+                const slots={Morning:[],Afternoon:[],Evening:[]};
+                day.assignments.forEach(a=>{const s=a.slot||'Morning';if(slots[s])slots[s].push(a)});
+                h+=`<div class="grid grid-cols-3 gap-2">`;
+                for(const[slot,tasks]of Object.entries(slots)){
+                    h+=`<div class="rounded-lg border ${sC[slot]} p-2"><p class="text-[10px] font-bold uppercase tracking-wider opacity-60 mb-1">${sL[slot]}</p>`;
+                    if(!tasks.length)h+=`<p class="text-[11px] italic opacity-40">-</p>`;
+                    tasks.forEach(t=>{
+                        const st=t.status==='completed'?'bg-emerald-400':t.status==='reviewing'?'bg-amber-400 pulse-dot':'bg-slate-300';
+                        const freq=t.tasks?.frequency||'daily';
+                        h+=`<p class="text-[11px] leading-tight mb-0.5"><span class="w-1.5 h-1.5 ${st} rounded-full inline-block mr-0.5"></span><span class="font-medium">${t.tasks?.title||'?'}</span></p>`;
+                        h+=`<p class="text-[10px] opacity-50">${t.profiles?.full_name||'?'}</p>`;
+                        h+=`<span class="inline-block text-[9px] font-bold px-1.5 py-0 rounded border ${fC[freq]} mt-0.5">${fL[freq]}</span>`;
+                    });
+                    h+=`</div>`;
+                }
+                h+=`</div>`;
+            }
+            h+=`</div>`;
+        }
+        h+=`</div>`;box.innerHTML=h;
+        }catch(e){box.innerHTML=`<p class="text-center text-red-400 text-sm py-8">Lỗi tải lịch</p>`}
+    }
+
+    async function clearDay(d){
+        if(!confirm(`Xóa toàn bộ phân việc của ngày ${d}?`))return;
+        try{await fetch(`${API}/clear-schedule/${d}`,{method:'DELETE'});showToast('Đã xóa!','success');loadWeeklyView()}catch(e){showToast('Lỗi!','error')}
+    }
+
+    // ===================== TASK CRUD =====================
+    async function fetchTasks(){
+        const box=document.getElementById('taskManagerList');
+        try{const r=await fetch(`${API}/tasks`);const d=await r.json();
+        const sL={Morning:'Sáng',Afternoon:'Chiều',Evening:'Tối'};
+        const fC={daily:'freq-daily',weekly:'freq-weekly',monthly:'freq-monthly'};
+        const fL={daily:'Hàng ngày',weekly:'Hàng tuần',monthly:'Hàng tháng'};
+        const fI={daily:'fa-repeat',weekly:'fa-calendar-week',monthly:'fa-calendar-days'};
+        if(!d.tasks||!d.tasks.length){box.innerHTML='<div class="text-center py-8 text-slate-300 text-sm">Chưa có việc nào. Bấm "Thêm việc" hoặc "Reset mặc định".</div>';return}
+        box.innerHTML='';
+        d.tasks.forEach(t=>{
+            const slot=t.preferred_slot?`<span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded font-medium"><i class="fa-regular fa-clock mr-0.5"></i>${sL[t.preferred_slot]}</span>`:'';
+            box.innerHTML+=`<div class="bg-white rounded-xl border border-slate-100 p-4 flex items-center gap-4 hover:shadow-sm transition-shadow">
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 mb-1 flex-wrap">
+                        <span class="font-bold text-slate-800 text-sm">${t.title}</span>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-lg border ${fC[t.frequency]}"><i class="fa-solid ${fI[t.frequency]} mr-0.5"></i>${fL[t.frequency]}</span>
+                        ${slot}
                     </div>
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 hover:opacity-100 transition-opacity flex items-end justify-center pb-4">
-                        <span class="bg-white/90 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg"><i class="fa-solid fa-expand mr-1"></i>Xem ảnh gốc</span>
-                    </div>
+                    <p class="text-xs text-slate-400"><i class="fa-regular fa-clock mr-0.5"></i>${t.duration_minutes} phút &bull; <span class="text-amber-400"><i class="fa-solid fa-star mr-0.5"></i>+${t.points} điểm</span></p>
                 </div>
-                <div class="p-5 flex-1 flex flex-col">
-                    <div class="flex justify-between items-start mb-3">
-                        <div class="flex-1 min-w-0">
-                            <h3 class="font-bold text-slate-800 truncate">${item.tasks.title}</h3>
-                            <p class="text-sm text-slate-400 font-medium mt-0.5">${item.profiles.full_name}</p>
-                        </div>
-                        <span class="ml-2 flex-shrink-0 px-2.5 py-1 bg-amber-50 text-amber-600 text-[11px] font-bold rounded-lg border border-amber-200">Chờ duyệt</span>
-                    </div>
-                    <p class="text-xs text-slate-300 mb-4"><i class="fa-regular fa-calendar mr-1"></i>${item.assigned_date}</p>
-                    <div class="flex gap-2 mt-auto">
-                        <button onclick="approveTask('${item.id}', ${pts})" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-sm transition-colors shadow-sm">
-                            <i class="fa-solid fa-check mr-1"></i> Duyệt
-                        </button>
-                        <button onclick="rejectTask('${item.id}')" class="flex-1 bg-red-50 hover:bg-red-100 text-red-500 font-bold py-2.5 rounded-xl text-sm transition-colors border border-red-100">
-                            <i class="fa-solid fa-rotate-left mr-1"></i> Làm lại
-                        </button>
-                    </div>
+                <div class="flex gap-1 flex-shrink-0">
+                    <button onclick="editTask('${t.id}','${t.title}',${t.duration_minutes},${t.points},'${t.frequency}','${t.preferred_slot||''}')" class="w-9 h-9 flex items-center justify-center text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"><i class="fa-solid fa-pen text-sm"></i></button>
+                    <button onclick="deleteTask('${t.id}','${t.title}')" class="w-9 h-9 flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><i class="fa-solid fa-trash-can text-sm"></i></button>
                 </div>
             </div>`;
         });
+        }catch(e){box.innerHTML=`<p class="text-center text-red-400 text-sm py-8">Lỗi tải</p>`}
     }
 
-    // *** SỬA LỖI CHÍNH: Duyệt task AGHIỀM CỘNG ĐIỂM CHO THÀNH VIÊN ***
-    async function approveTask(assignmentId, points) {
-        try {
-            // 1. Lấy user_id của người làm task này
-            const { data: assign, error: err1 } = await mySupabase
-                .from('assignments').select('user_id').eq('id', assignmentId).single();
-            if (err1) throw err1;
+    function openTaskModal(){document.getElementById('taskModalTitle').innerText='Thêm việc mới';document.getElementById('editTaskId').value='';document.getElementById('taskTitle').value='';document.getElementById('taskDuration').value='30';document.getElementById('taskPoints').value='5';document.getElementById('taskFrequency').value='daily';document.getElementById('taskSlot').value='';const m=document.getElementById('taskModal');m.classList.remove('hidden');m.classList.add('flex')}
+    function editTask(id,title,dur,pts,freq,slot){document.getElementById('taskModalTitle').innerText='Sửa việc';document.getElementById('editTaskId').value=id;document.getElementById('taskTitle').value=title;document.getElementById('taskDuration').value=dur;document.getElementById('taskPoints').value=pts;document.getElementById('taskFrequency').value=freq;document.getElementById('taskSlot').value=slot;const m=document.getElementById('taskModal');m.classList.remove('hidden');m.classList.add('flex')}
+    function closeTaskModal(){const m=document.getElementById('taskModal');m.classList.add('hidden');m.classList.remove('flex')}
 
-            // 2. Đổi status thành completed
-            const { error: err2 } = await mySupabase
-                .from('assignments').update({ status: 'completed' }).eq('id', assignmentId);
-            if (err2) throw err2;
-
-            // 3. Lấy điểm hiện tại của thành viên
-            const { data: profile, error: err3 } = await mySupabase
-                .from('profiles').select('total_points').eq('id', assign.user_id).single();
-            if (err3) throw err3;
-
-            // 4. CỘNG ĐIỂM (đây là phần bị thiếu trước đó!)
-            const newPoints = (profile.total_points || 0) + points;
-            const { error: err4 } = await mySupabase
-                .from('profiles').update({ total_points: newPoints }).eq('id', assign.user_id);
-            if (err4) throw err4;
-
-            showToast(`Đã duyệt! Cộng +${points} điểm cho thành viên.`, 'success');
-            fetchReviewingTasks();
-            fetchMembers(); // Cập nhật lại bảng điểm
-        } catch (err) {
-            showToast('Lỗi khi duyệt: ' + err.message, 'error');
-        }
+    async function saveTask(){
+        const id=document.getElementById('editTaskId').value;
+        const body={title:document.getElementById('taskTitle').value,duration_minutes:parseInt(document.getElementById('taskDuration').value),points:parseInt(document.getElementById('taskPoints').value),frequency:document.getElementById('taskFrequency').value,preferred_slot:document.getElementById('taskSlot').value||null};
+        if(!body.title)return showToast('Nhập tên việc!','warning');
+        try{
+            const url=id?`${API}/tasks/${id}`:`${API}/tasks`;
+            const method=id?'PUT':'POST';
+            const r=await fetch(url,{method,headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+            if(!r.ok){const e=await r.json();throw new Error(e.detail||'Lỗi')}
+            showToast(id?'Đã cập nhật!':'Đã thêm việc!','success');closeTaskModal();fetchTasks();
+        }catch(e){showToast('Lỗi: '+e.message,'error')}
     }
 
-    async function rejectTask(assignmentId) {
-        try {
-            const { error } = await mySupabase
-                .from('assignments').update({ status: 'pending', proof_image_url: null }).eq('id', assignmentId);
-            if (error) throw error;
-            showToast('Đã từ chối, yêu cầu thành viên làm lại.', 'warning');
-            fetchReviewingTasks();
-        } catch (err) {
-            showToast('Lỗi: ' + err.message, 'error');
-        }
+    async function deleteTask(id,title){
+        if(!confirm(`Xóa "${title}"?`))return;
+        try{const r=await fetch(`${API}/tasks/${id}`,{method:'DELETE'});if(!r.ok)throw new Error();showToast('Đã xóa!','success');fetchTasks()}catch(e){showToast('Lỗi!','error')}
     }
 
-    // ===================== QUẢN LÝ THÀNH VIÊN =====================
-    async function fetchMembers() {
-        const list = document.getElementById('memberList');
-        const { data, error } = await mySupabase.from('profiles').select('*').order('role', { ascending: true });
-        if (error) return console.error(error);
-        document.getElementById('totalMembers').innerText = `${data.length} người`;
-        list.innerHTML = '';
-        data.forEach(u => {
-            const isAdmin = u.role === 'admin';
-            const roleBadge = isAdmin
-                ? '<span class="px-2.5 py-1 bg-red-50 text-red-500 text-xs font-bold rounded-lg border border-red-100">Admin</span>'
-                : '<span class="px-2.5 py-1 bg-blue-50 text-blue-500 text-xs font-bold rounded-lg border border-blue-100">Thành viên</span>';
-            const meTag = (isAdmin && currentUser && u.id === currentUser.id) ? '<span class="ml-2 text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-medium">Bạn</span>' : '';
-            list.innerHTML += `
-            <tr class="hover:bg-slate-50/50 transition-colors">
-                <td class="px-6 py-4">
-                    <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl ${isAdmin ? 'bg-gradient-to-br from-indigo-500 to-violet-600 text-white' : 'bg-slate-100 text-slate-500'} flex items-center justify-center font-bold text-sm">${u.full_name.charAt(0).toUpperCase()}</div>
-                        <span class="font-semibold text-slate-800 text-sm">${u.full_name}${meTag}</span>
-                    </div>
-                </td>
-                <td class="px-6 py-4">${roleBadge}</td>
-                <td class="px-6 py-4"><span class="font-bold text-amber-500"><i class="fa-solid fa-star text-xs mr-0.5"></i>${u.total_points || 0}</span></td>
-                <td class="px-6 py-4 text-right">
-                    ${!isAdmin ? `<button onclick="editPoints('${u.id}','${u.full_name}')" class="w-9 h-9 inline-flex items-center justify-center text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="Thưởng/Phạt"><i class="fa-solid fa-pen-to-square text-sm"></i></button>` : ''}
-                </td>
-            </tr>`;
+    async function seedDefaults(){
+        if(!confirm('Chèn lại 9 việc mặc định? (Không xóa việc bạn tự thêm)'))return;
+        try{const r=await fetch(`${API}/tasks/seed-defaults`,{method:'POST'});const d=await r.json();showToast(d.message,'success');fetchTasks()}catch(e){showToast('Lỗi!','error')}
+    }
+
+    // ===================== DUYỆT =====================
+    async function fetchReviewingTasks(){
+        const ld=document.getElementById('loading'),g=document.getElementById('taskGrid'),e=document.getElementById('emptyState');
+        ld.classList.remove('hidden');g.classList.add('hidden');e.classList.add('hidden');
+        const{data}=await mySupabase.from('assignments').select(`id,assigned_date,proof_image_url,slot,tasks(title,points),profiles(full_name)`).eq('status','reviewing');
+        ld.classList.add('hidden');
+        if(!data||!data.length)return e.classList.remove('hidden');
+        const b=document.getElementById('reviewBadge');b.textContent=data.length;b.classList.remove('hidden');
+        g.classList.remove('hidden');
+        const sL={Morning:'Sáng',Afternoon:'Chiều',Evening:'Tối'};
+        g.innerHTML='';
+        data.forEach(i=>{
+            const img=i.proof_image_url||'https://picsum.photos/seed/default/600/400';const pts=i.tasks.points||0;
+            g.innerHTML+=`<div class="task-card bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col hover:shadow-md transition-shadow"><div class="h-44 bg-slate-100 relative overflow-hidden cursor-pointer" onclick="window.open('${img}','_blank')"><img src="${img}" class="task-img w-full h-full object-cover" loading="lazy"><div class="absolute top-3 right-3"><span class="bg-black/60 backdrop-blur-sm text-white text-xs font-bold px-2.5 py-1 rounded-lg">+${pts}đ</span></div></div><div class="p-4 flex-1 flex flex-col"><div class="flex justify-between items-start mb-2"><div><h3 class="font-bold text-slate-800 text-sm">${i.tasks.title}</h3><p class="text-xs text-slate-400 mt-0.5">${i.profiles.full_name}${i.slot?' &bull; '+sL[i.slot]:''}</p></div><span class="ml-2 flex-shrink-0 px-2 py-0.5 bg-amber-50 text-amber-500 text-[10px] font-bold rounded-lg border border-amber-200">Chờ duyệt</span></div><p class="text-[11px] text-slate-300 mb-3">${i.assigned_date}</p><div class="flex gap-2 mt-auto"><button onclick="approveTask('${i.id}',${pts})" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs transition-colors shadow-sm"><i class="fa-solid fa-check mr-1"></i>Duyệt</button><button onclick="rejectTask('${i.id}')" class="flex-1 bg-red-50 hover:bg-red-100 text-red-500 font-bold py-2 rounded-xl text-xs transition-colors border border-red-100"><i class="fa-solid fa-rotate-left mr-1"></i>Làm lại</button></div></div></div>`;
         });
     }
 
-    let currentEditUserId = null;
-    function editPoints(id, name) {
-        currentEditUserId = id;
-        document.getElementById('modalUserName').innerText = name;
-        document.getElementById('pointValue').value = '';
-        const m = document.getElementById('pointsModal');
-        m.classList.remove('hidden'); m.classList.add('flex');
+    async function approveTask(id,pts){
+        try{const{data:a}=await mySupabase.from('assignments').select('user_id').eq('id',id).single();if(!a)throw new Error('Không tìm thấy');
+        await mySupabase.from('assignments').update({status:'completed'}).eq('id',id);
+        const{data:p}=await mySupabase.from('profiles').select('total_points').eq('id',a.user_id).single();const np=(p.total_points||0)+pts;
+        await mySupabase.from('profiles').update({total_points:np}).eq('id',a.user_id);
+        showToast(`Đã duyệt! +${pts} điểm.`,'success');fetchReviewingTasks();fetchMembers();loadWeeklyView()}catch(e){showToast('Lỗi: '+e.message,'error')}
     }
-    function closePointsModal() {
-        const m = document.getElementById('pointsModal');
-        m.classList.add('hidden'); m.classList.remove('flex');
-        currentEditUserId = null;
+    async function rejectTask(id){try{await mySupabase.from('assignments').update({status:'pending',proof_image_url:null}).eq('id',id);showToast('Yêu cầu làm lại.','warning');fetchReviewingTasks();loadWeeklyView()}catch(e){showToast('Lỗi!','error')}}
+
+    // ===================== THÀNH VIÊN =====================
+    async function fetchMembers(){
+        const list=document.getElementById('memberList');const{data}=await mySupabase.from('profiles').select('*').order('role',{ascending:true});if(!data)return;
+        document.getElementById('totalMembers').innerText=`${data.length} người`;list.innerHTML='';
+        data.forEach(u=>{const isA=u.role==='admin';const rb=isA?'<span class="px-2 py-0.5 bg-red-50 text-red-500 text-[11px] font-bold rounded-lg border border-red-100">Admin</span>':'<span class="px-2 py-0.5 bg-blue-50 text-blue-500 text-[11px] font-bold rounded-lg border border-blue-100">Member</span>';
+        const me=isA&&currentUser&&u.id===currentUser.id?'<span class="ml-1 text-[9px] bg-slate-100 text-slate-400 px-1.5 py-0.5 rounded-full">Bạn</span>':'';
+        list.innerHTML+=`<tr class="hover:bg-slate-50/50"><td class="px-6 py-3.5"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-lg ${isA?'bg-gradient-to-br from-indigo-500 to-violet-600 text-white':'bg-slate-100 text-slate-500'} flex items-center justify-center font-bold text-xs">${u.full_name.charAt(0).toUpperCase()}</div><span class="font-semibold text-slate-800 text-sm">${u.full_name}${me}</span></div></td><td class="px-6 py-3.5">${rb}</td><td class="px-6 py-3.5"><span class="font-bold text-amber-500 text-sm"><i class="fa-solid fa-star text-[10px] mr-0.5"></i>${u.total_points||0}</span></td><td class="px-6 py-3.5 text-right">${!isA?`<button onclick="editPoints('${u.id}','${u.full_name}')" class="w-8 h-8 inline-flex items-center justify-center text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"><i class="fa-solid fa-pen-to-square text-sm"></i></button>`:''}</td></tr>`});
     }
-    async function savePoints() {
-        if (!currentEditUserId) return;
-        const delta = parseInt(document.getElementById('pointValue').value);
-        if (isNaN(delta) || delta === 0) return showToast('Nhập số khác 0!', 'warning');
-        try {
-            const { data: u } = await mySupabase.from('profiles').select('total_points').eq('id', currentEditUserId).single();
-            const np = (u.total_points || 0) + delta;
-            const { error } = await mySupabase.from('profiles').update({ total_points: np }).eq('id', currentEditUserId);
-            if (error) throw error;
-            showToast(`Đã cập nhật! Tổng điểm mới: ${np}`, 'success');
-            closePointsModal();
-            fetchMembers();
-        } catch (err) {
-            showToast('Lỗi: ' + err.message, 'error');
-        }
-    }
+
+    let curEditId=null;
+    function editPoints(id,name){curEditId=id;document.getElementById('modalUserName').innerText=name;document.getElementById('pointValue').value='';const m=document.getElementById('pointsModal');m.classList.remove('hidden');m.classList.add('flex')}
+    function closePointsModal(){const m=document.getElementById('pointsModal');m.classList.add('hidden');m.classList.remove('flex');curEditId=null}
+    async function savePoints(){if(!curEditId)return;const d=parseInt(document.getElementById('pointValue').value);if(isNaN(d)||d===0)return showToast('Nhập số khác 0!','warning');
+    try{const{data:u}=await mySupabase.from('profiles').select('total_points').eq('id',curEditId).single();const np=(u.total_points||0)+d;await mySupabase.from('profiles').update({total_points:np}).eq('id',curEditId);showToast(`Điểm mới: ${np}`,'success');closePointsModal();fetchMembers()}catch(e){showToast('Lỗi!','error')}}
 
     // ===================== CHI TIÊU =====================
-    async function fetchExpensesForAdmin() {
-        const { data: expenses, error: eErr } = await mySupabase.from('expenses').select('*, profiles(full_name)').eq('is_settled', false).order('created_at', { ascending: false });
-        const { data: members, error: mErr } = await mySupabase.from('profiles').select('id, full_name').eq('role', 'member');
-        if (eErr || mErr) return console.error(eErr || mErr);
-
-        const vnd = n => new Intl.NumberFormat('vi-VN', { style:'currency', currency:'VND' }).format(n);
-        let total = 0;
-        expenses.forEach(e => total += parseFloat(e.amount));
-        const avg = members.length > 0 ? total / members.length : 0;
-        document.getElementById('totalExpense').innerText = vnd(total);
-        document.getElementById('avgExpense').innerText = vnd(avg);
-        document.getElementById('expenseCount').innerText = expenses.length;
-
-        // Balance
-        let bal = {};
-        members.forEach(m => bal[m.id] = { name: m.full_name, spent: 0, net: 0 });
-        expenses.forEach(e => { if (bal[e.payer_id]) bal[e.payer_id].spent += parseFloat(e.amount); });
-        const bl = document.getElementById('balanceList');
-        bl.innerHTML = '';
-        for (const [id, u] of Object.entries(bal)) {
-            u.net = u.spent - avg;
-            let cls, txt, icon;
-            if (u.net > 100) { cls='bg-emerald-50 border-emerald-100 text-emerald-700'; txt=`Nhận lại ${vnd(u.net)}`; icon='fa-arrow-down'; }
-            else if (u.net < -100) { cls='bg-red-50 border-red-100 text-red-600'; txt=`Cần đóng ${vnd(Math.abs(u.net))}`; icon='fa-arrow-up'; }
-            else { cls='bg-slate-50 border-slate-100 text-slate-500'; txt='Đã hòa vốn'; icon='fa-check'; }
-            bl.innerHTML += `<li class="flex justify-between items-center p-4 rounded-xl border ${cls}"><div><p class="font-bold text-sm">${u.name}</p><p class="text-[11px] opacity-60">Đã chi: ${vnd(u.spent)}</p></div><div class="font-bold text-sm text-right"><i class="fa-solid ${icon} mr-1"></i>${txt}</div></li>`;
-        }
-
-        // History
-        const hl = document.getElementById('adminExpenseList');
-        hl.innerHTML = '';
-        if (!expenses.length) { hl.innerHTML = '<li class="p-8 text-center text-slate-300 text-sm italic">Chưa có khoản chi nào.</li>'; return; }
-        expenses.forEach(e => {
-            hl.innerHTML += `<li class="p-4 hover:bg-slate-50 flex justify-between items-center transition-colors"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center font-bold text-xs">${e.profiles.full_name.charAt(0)}</div><div><p class="font-semibold text-slate-800 text-sm">${e.description}</p><p class="text-[11px] text-slate-400">${e.category} &bull; ${e.expense_date || ''}</p></div></div><span class="font-bold text-emerald-600 text-sm">${vnd(e.amount)}</span></li>`;
-        });
+    async function fetchExpensesForAdmin(){
+        const{data:exp}=await mySupabase.from('expenses').select('*,profiles(full_name)').eq('is_settled',false).order('created_at',{ascending:false});
+        const{data:mem}=await mySupabase.from('profiles').select('id,full_name').eq('role','member');if(!exp||!mem)return;
+        const vnd=n=>new Intl.NumberFormat('vi-VN',{style:'currency',currency:'VND'}).format(n);
+        let total=0;exp.forEach(e=>total+=parseFloat(e.amount));const avg=mem.length?total/mem.length:0;
+        document.getElementById('totalExpense').innerText=vnd(total);document.getElementById('avgExpense').innerText=vnd(avg);document.getElementById('expenseCount').innerText=exp.length;
+        let bal={};mem.forEach(m=>bal[m.id]={name:m.full_name,spent:0,net:0});exp.forEach(e=>{if(bal[e.payer_id])bal[e.payer_id].spent+=parseFloat(e.amount)});
+        const bl=document.getElementById('balanceList');bl.innerHTML='';
+        for(const[id,u]of Object.entries(bal)){u.net=u.spent-avg;let cls,txt,ic;
+        if(u.net>100){cls='bg-emerald-50 border-emerald-100 text-emerald-700';txt=`Nhận ${vnd(u.net)}`;ic='fa-arrow-down'}
+        else if(u.net<-100){cls='bg-red-50 border-red-100 text-red-600';txt=`Trả ${vnd(Math.abs(u.net))}`;ic='fa-arrow-up'}
+        else{cls='bg-slate-50 border-slate-100 text-slate-500';txt='Hòa vốn';ic='fa-check'}
+        bl.innerHTML+=`<li class="flex justify-between items-center p-3 rounded-xl border ${cls}"><div><p class="font-bold text-xs">${u.name}</p><p class="text-[10px] opacity-60">Chi: ${vnd(u.spent)}</p></div><div class="font-bold text-xs text-right"><i class="fa-solid ${ic} mr-1"></i>${txt}</div></li>`}
+        const hl=document.getElementById('adminExpenseList');hl.innerHTML='';
+        if(!exp.length){hl.innerHTML='<li class="p-8 text-center text-slate-300 text-xs italic">Chưa có.</li>';return}
+        exp.forEach(e=>{hl.innerHTML+=`<li class="p-3.5 hover:bg-slate-50 flex justify-between items-center"><div class="flex items-center gap-2.5"><div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center font-bold text-[11px]">${e.profiles.full_name.charAt(0)}</div><div><p class="font-semibold text-slate-800 text-xs">${e.description}</p><p class="text-[10px] text-slate-400">${e.category}</p></div></div><span class="font-bold text-emerald-600 text-xs">${vnd(e.amount)}</span></li>`});
     }
 
-    async function settleExpenses() {
-        if (!confirm('Chốt sổ tháng này? Toàn bộ chi tiêu sẽ được làm mới.')) return;
-        const { error } = await mySupabase.from('expenses').update({ is_settled: true }).eq('is_settled', false);
-        if (error) showToast('Lỗi: ' + error.message, 'error');
-        else { showToast('Chốt sổ thành công!', 'success'); fetchExpensesForAdmin(); }
-    }
+    async function settleExpenses(){if(!confirm('Chốt sổ?'))return;const{error}=await mySupabase.from('expenses').update({is_settled:true}).eq('is_settled',false);if(error)showToast('Lỗi!','error');else{showToast('Chốt sổ thành công!','success');fetchExpensesForAdmin()}}
 
-    async function logout() { await mySupabase.auth.signOut(); window.location.href = 'login.html'; }
+    async function logout(){await mySupabase.auth.signOut();window.location.href='login.html'}
 </script>
 </body>
 </html>
