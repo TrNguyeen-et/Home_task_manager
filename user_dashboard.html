@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang Cá Nhân - Home Task Manager</title>
+    <title>Cá nhân - Home Task Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -14,8 +14,7 @@
         @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
         @keyframes toastIn{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
         @keyframes toastOut{from{transform:translateY(0);opacity:1}to{transform:translateY(100%);opacity:0}}
-        .toast-in{animation:toastIn .4s cubic-bezier(.16,1,.3,1) forwards}
-        .toast-out{animation:toastOut .3s ease-in forwards}
+        .toast-in{animation:toastIn .4s cubic-bezier(.16,1,.3,1) forwards}.toast-out{animation:toastOut .3s ease-in forwards}
         .safe-bottom{padding-bottom:env(safe-area-inset-bottom,0)}
         @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}.pulse-dot{animation:pulse-dot 2s ease-in-out infinite}
         .freq-daily{background:#dbeafe;color:#2563eb}.freq-weekly{background:#fef3c7;color:#d97706}.freq-monthly{background:#fce7f3;color:#db2777}
@@ -28,60 +27,80 @@
     <header class="bg-white/80 backdrop-blur-md shadow-sm h-16 flex items-center justify-between px-4 sticky top-0 z-20 border-b border-slate-100">
         <div class="flex items-center gap-3">
             <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-md shadow-indigo-200" id="userAvatar"></div>
-            <div><p class="text-sm font-bold text-slate-900 leading-tight" id="userName">...</p><p class="text-xs text-amber-500 font-semibold"><i class="fa-solid fa-star text-[10px]"></i> <span id="userPoints">0</span> điểm</p></div>
+            <div><p class="text-sm font-bold text-slate-900 leading-tight" id="userName">...</p><p class="text-xs text-amber-500 font-semibold"><i class="fa-solid fa-star text-[10px]"></i> <span id="userPoints">0</span></p></div>
         </div>
-        <button onclick="logout()" class="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+        <div class="flex items-center gap-2">
+            <span class="hidden sm:inline-flex items-center gap-1 bg-indigo-50 border border-indigo-200 px-2.5 py-1 rounded-lg text-[10px] font-bold text-indigo-600" id="headerHouse"><i class="fa-solid fa-house"></i> <span>...</span></span>
+            <button onclick="logout()" class="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+        </div>
     </header>
 
     <main class="flex-1 overflow-y-auto p-4 pb-24">
 
-        <!-- TAB: Việc nhà -->
         <section id="tab-tasks" class="tab-content active">
             <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-list-check text-indigo-500"></i> Việc của bạn</h2>
-            <div id="taskList" class="space-y-3"><div class="text-center py-12 text-slate-300"><i class="fa-solid fa-circle-notch fa-spin text-2xl mb-3 block"></i><span class="text-sm">Đang tải...</span></div></div>
+            <div id="taskList" class="space-y-3"><div class="text-center py-12 text-slate-300"><i class="fa-solid fa-circle-notch fa-spin text-2xl mb-3 block"></i></div></div>
         </section>
 
-        <!-- TAB: Lịch -->
         <section id="tab-schedule" class="tab-content">
-            <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fa-regular fa-calendar-check text-blue-500"></i> Lịch rảnh trong tuần</h2>
+            <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fa-regular fa-calendar-check text-blue-500"></i> Lịch rảnh</h2>
             <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden mb-4">
-                <div class="p-4 border-b border-slate-50 bg-slate-50/50"><p class="text-xs text-slate-500">Tích vào các ca bạn <b class="text-blue-600">chắc chắn ở nhà</b>.</p></div>
+                <div class="p-4 border-b border-slate-50 bg-slate-50/50"><p class="text-xs text-slate-500">Tích các ca <b class="text-blue-600">chắc chắn ở nhà</b>.</p></div>
                 <div class="overflow-x-auto p-3">
                     <table class="w-full text-center border-collapse min-w-[580px]">
                         <thead><tr class="text-slate-400 text-[11px] uppercase tracking-wider"><th class="p-2.5 border-b border-slate-100 bg-slate-50 rounded-tl-lg">Ca</th><th class="p-2.5 border-b border-slate-100">T2</th><th class="p-2.5 border-b border-slate-100">T3</th><th class="p-2.5 border-b border-slate-100">T4</th><th class="p-2.5 border-b border-slate-100">T5</th><th class="p-2.5 border-b border-slate-100">T6</th><th class="p-2.5 border-b border-slate-100">T7</th><th class="p-2.5 border-b border-slate-100 bg-slate-50 rounded-tr-lg">CN</th></tr></thead>
                         <tbody id="scheduleGridBody">
-                            <tr><td class="p-2.5 border-b border-slate-50 font-bold text-slate-600 text-xs bg-slate-50">Sáng</td><td class="p-2.5 border-b border-slate-50"><input type="checkbox" data-day="Monday" data-slot="Morning" class="w-5 h-5 accent-blue-600 rounded cursor-pointer"></td><td class="p-2.5 border-b border-slate-50"><input type="checkbox" data-day="Tuesday" data-slot="Morning" class="w-5 h-5 accent-blue-600 rounded cursor-pointer"></td><td class="p-2.5 border-b border-slate-50"><input type="checkbox" data-day="Wednesday" data-slot="Morning" class="w-5 h-5 accent-blue-600 rounded cursor-pointer"></td><td class="p-2.5 border-b border-slate-50"><input type="checkbox" data-day="Thursday" data-slot="Morning" class="w-5 h-5 accent-blue-600 rounded cursor-pointer"></td><td class="p-2.5 border-b border-slate-50"><input type="checkbox" data-day="Friday" data-slot="Morning" class="w-5 h-5 accent-blue-600 rounded cursor-pointer"></td><td class="p-2.5 border-b border-slate-50"><input type="checkbox" data-day="Saturday" data-slot="Morning" class="w-5 h-5 accent-blue-600 rounded cursor-pointer"></td><td class="p-2.5 border-b border-slate-50 bg-slate-50"><input type="checkbox" data-day="Sunday" data-slot="Morning" class="w-5 h-5 accent-blue-600 rounded cursor-pointer"></td></tr>
-                            <tr><td class="p-2.5 border-b border-slate-50 font-bold text-slate-600 text-xs bg-slate-50">Chiều</td><td class="p-2.5 border-b border-slate-50"><input type="checkbox" data-day="Monday" data-slot="Afternoon" class="w-5 h-5 accent-blue-600 rounded cursor-pointer"></td><td class="p-2.5 border-b border-slate-50"><input type="checkbox" data-day="Tuesday" data-slot="Afternoon" class="w-5 h-5 accent-blue-600 rounded cursor-pointer"></td><td class="p-2.5 border-b border-slate-50"><input type="checkbox" data-day="Wednesday" data-slot="Afternoon" class="w-5 h-5 accent-blue-600 rounded cursor-pointer"></td><td class="p-2.5 border-b border-slate-50"><input type="checkbox" data-day="Thursday" data-slot="Afternoon" class="w-5 h-5 accent-blue-600 rounded cursor-pointer"></td><td class="p-2.5 border-b border-slate-50"><input type="checkbox" data-day="Friday" data-slot="Afternoon" class="w-5 h-5 accent-blue-600 rounded cursor-pointer"></td><td class="p-2.5 border-b border-slate-50"><input type="checkbox" data-day="Saturday" data-slot="Afternoon" class="w-5 h-5 accent-blue-600 rounded cursor-pointer"></td><td class="p-2.5 border-b border-slate-50 bg-slate-50"><input type="checkbox" data-day="Sunday" data-slot="Afternoon" class="w-5 h-5 accent-blue-600 rounded cursor-pointer"></td></tr>
-                            <tr><td class="p-2.5 font-bold text-slate-600 text-xs bg-slate-50 rounded-bl-lg">Tối</td><td class="p-2.5"><input type="checkbox" data-day="Monday" data-slot="Evening" class="w-5 h-5 accent-blue-600 rounded cursor-pointer"></td><td class="p-2.5"><input type="checkbox" data-day="Tuesday" data-slot="Evening" class="w-5 h-5 accent-blue-600 rounded cursor-pointer"></td><td class="p-2.5"><input type="checkbox" data-day="Wednesday" data-slot="Evening" class="w-5 h-5 accent-blue-600 rounded cursor-pointer"></td><td class="p-2.5"><input type="checkbox" data-day="Thursday" data-slot="Evening" class="w-5 h-5 accent-blue-600 rounded cursor-pointer"></td><td class="p-2.5"><input type="checkbox" data-day="Friday" data-slot="Evening" class="w-5 h-5 accent-blue-600 rounded cursor-pointer"></td><td class="p-2.5"><input type="checkbox" data-day="Saturday" data-slot="Evening" class="w-5 h-5 accent-blue-600 rounded cursor-pointer"></td><td class="p-2.5 bg-slate-50 rounded-br-lg"><input type="checkbox" data-day="Sunday" data-slot="Evening" class="w-5 h-5 accent-blue-600 rounded cursor-pointer"></td></tr>
+                            <tr><td class="p-2.5 border-b border-slate-50 font-bold text-slate-600 text-xs bg-slate-50">Sáng</td><td class="p-2.5 border-b border-slate-50"><input type="checkbox" data-day="Monday" data-slot="Morning" class="w-5 h-5 accent-blue-600 rounded"></td><td class="p-2.5 border-b border-slate-50"><input type="checkbox" data-day="Tuesday" data-slot="Morning" class="w-5 h-5 accent-blue-600 rounded"></td><td class="p-2.5 border-b border-slate-50"><input type="checkbox" data-day="Wednesday" data-slot="Morning" class="w-5 h-5 accent-blue-600 rounded"></td><td class="p-2.5 border-b border-slate-50"><input type="checkbox" data-day="Thursday" data-slot="Morning" class="w-5 h-5 accent-blue-600 rounded"></td><td class="p-2.5 border-b border-slate-50"><input type="checkbox" data-day="Friday" data-slot="Morning" class="w-5 h-5 accent-blue-600 rounded"></td><td class="p-2.5 border-b border-slate-50"><input type="checkbox" data-day="Saturday" data-slot="Morning" class="w-5 h-5 accent-blue-600 rounded"></td><td class="p-2.5 border-b border-slate-50 bg-slate-50"><input type="checkbox" data-day="Sunday" data-slot="Morning" class="w-5 h-5 accent-blue-600 rounded"></td></tr>
+                            <tr><td class="p-2.5 border-b border-slate-50 font-bold text-slate-600 text-xs bg-slate-50">Chiều</td><td class="p-2.5 border-b border-slate-50"><input type="checkbox" data-day="Monday" data-slot="Afternoon" class="w-5 h-5 accent-blue-600 rounded"></td><td class="p-2.5 border-b border-slate-50"><input type="checkbox" data-day="Tuesday" data-slot="Afternoon" class="w-5 h-5 accent-blue-600 rounded"></td><td class="p-2.5 border-b border-slate-50"><input type="checkbox" data-day="Wednesday" data-slot="Afternoon" class="w-5 h-5 accent-blue-600 rounded"></td><td class="p-2.5 border-b border-slate-50"><input type="checkbox" data-day="Thursday" data-slot="Afternoon" class="w-5 h-5 accent-blue-600 rounded"></td><td class="p-2.5 border-b border-slate-50"><input type="checkbox" data-day="Friday" data-slot="Afternoon" class="w-5 h-5 accent-blue-600 rounded"></td><td class="p-2.5 border-b border-slate-50"><input type="checkbox" data-day="Saturday" data-slot="Afternoon" class="w-5 h-5 accent-blue-600 rounded"></td><td class="p-2.5 border-b border-slate-50 bg-slate-50"><input type="checkbox" data-day="Sunday" data-slot="Afternoon" class="w-5 h-5 accent-blue-600 rounded"></td></tr>
+                            <tr><td class="p-2.5 font-bold text-slate-600 text-xs bg-slate-50 rounded-bl-lg">Tối</td><td class="p-2.5"><input type="checkbox" data-day="Monday" data-slot="Evening" class="w-5 h-5 accent-blue-600 rounded"></td><td class="p-2.5"><input type="checkbox" data-day="Tuesday" data-slot="Evening" class="w-5 h-5 accent-blue-600 rounded"></td><td class="p-2.5"><input type="checkbox" data-day="Wednesday" data-slot="Evening" class="w-5 h-5 accent-blue-600 rounded"></td><td class="p-2.5"><input type="checkbox" data-day="Thursday" data-slot="Evening" class="w-5 h-5 accent-blue-600 rounded"></td><td class="p-2.5"><input type="checkbox" data-day="Friday" data-slot="Evening" class="w-5 h-5 accent-blue-600 rounded"></td><td class="p-2.5"><input type="checkbox" data-day="Saturday" data-slot="Evening" class="w-5 h-5 accent-blue-600 rounded"></td><td class="p-2.5 bg-slate-50 rounded-br-lg"><input type="checkbox" data-day="Sunday" data-slot="Evening" class="w-5 h-5 accent-blue-600 rounded"></td></tr>
                         </tbody>
                     </table>
                 </div>
-                <div class="p-4 border-t border-slate-50"><button onclick="saveWeeklySchedule()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-colors shadow-md shadow-blue-200 flex items-center justify-center gap-2 text-sm"><i class="fa-solid fa-cloud-arrow-up"></i> Lưu lịch cả tuần</button></div>
+                <div class="p-4 border-t border-slate-50"><button onclick="saveWeeklySchedule()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-colors shadow-md shadow-blue-200 text-sm"><i class="fa-solid fa-cloud-arrow-up"></i> Lưu lịch</button></div>
             </div>
         </section>
 
-        <!-- TAB: Chi tiêu -->
         <section id="tab-expenses" class="tab-content">
-            <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-wallet text-emerald-500"></i> Khai báo chi tiêu</h2>
+            <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-wallet text-emerald-500"></i> Chi tiêu</h2>
             <form id="expenseForm" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 mb-5">
                 <div class="space-y-4">
-                    <div><label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Mô tả</label><input type="text" id="expDesc" required placeholder="VD: Mua nước mắm..." class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-sm"></div>
-                    <div><label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Số tiền (VNĐ)</label><input type="number" id="expAmount" required placeholder="50000" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-sm"></div>
-                    <div><label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Danh mục</label><select id="expCategory" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none bg-white text-sm"><option value="Ăn uống">Ăn uống</option><option value="Tiền điện nước">Điện / Nước</option><option value="Tiền nhà">Tiền nhà</option><option value="Vật dụng">Vật dụng</option><option value="Khác">Khác</option></select></div>
-                    <button type="submit" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl hover:bg-emerald-700 transition-colors shadow-md shadow-emerald-200 text-sm"><i class="fa-solid fa-plus mr-1"></i> Thêm khoản chi</button>
+                    <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1.5">Mô tả</label><input type="text" id="expDesc" required placeholder="VD: Mua nước mắm" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-sm"></div>
+                    <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1.5">Số tiền</label><input type="number" id="expAmount" required placeholder="50000" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-sm"></div>
+                    <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1.5">Danh mục</label><select id="expCategory" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none bg-white text-sm"><option value="Ăn uống">Ăn uống</option><option value="Tiền điện nước">Điện/Nước</option><option value="Tiền nhà">Tiền nhà</option><option value="Vật dụng">Vật dụng</option><option value="Khác">Khác</option></select></div>
+                    <button type="submit" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl hover:bg-emerald-700 transition-colors shadow-md shadow-emerald-200 text-sm"><i class="fa-solid fa-plus mr-1"></i> Thêm</button>
                 </div>
             </form>
             <h3 class="font-bold text-slate-600 text-sm mb-3">Lịch sử</h3>
             <div id="myExpenseList" class="space-y-2"><p class="text-slate-300 text-sm italic text-center py-6">Chưa có.</p></div>
         </section>
 
-        <!-- TAB: Đổi ca -->
         <section id="tab-swap" class="tab-content">
-            <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-right-left text-purple-500"></i> Trao đổi</h2>
-            <div id="top1PrivilegeCard" class="hidden bg-gradient-to-br from-amber-400 to-orange-500 p-0.5 rounded-2xl shadow-lg shadow-amber-200 mb-5"><div class="bg-white rounded-xl p-5"><h3 class="font-extrabold text-amber-600 mb-2 flex items-center gap-2 text-sm"><i class="fa-solid fa-crown"></i> Đặc Quyền Top 1</h3><p class="text-xs text-slate-500 mb-4">Ép người khác làm việc, nạn nhân không thể từ chối.</p><div class="space-y-3"><select id="superTaskToGive" onchange="toggleCustomTask()" class="w-full px-3 py-2.5 border-2 border-amber-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none bg-amber-50/30 text-sm font-medium"><option value="">-- Chọn siêu việc --</option><option value="Giặt chăn mền">Giặt chăn mền</option><option value="Giặt ga giường">Giặt ga giường</option><option value="Lau dọn phòng tắm">Lau dọn phòng tắm</option><option value="Chà rửa bồn cầu">Chà rửa bồn cầu</option><option value="other">Khác...</option></select><input type="text" id="customSuperTaskInput" placeholder="Nhập tên..." class="w-full px-3 py-2.5 border-2 border-amber-300 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none hidden bg-amber-50 text-sm"><div class="flex gap-2"><select id="victimSelect" class="flex-1 px-3 py-2.5 border-2 border-amber-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none bg-amber-50/30 text-sm font-medium" onchange="previewForcedCost()"><option value="">-- Nạn nhân --</option></select><button onclick="executeForcedSwap()" class="bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold px-5 py-2.5 rounded-xl shadow-md text-sm flex items-center gap-2"><i class="fa-solid fa-bolt"></i> ÉP</button></div><p id="costPreview" class="text-xs font-bold text-orange-500 italic hidden"></p></div></div></div>
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 mb-5"><h3 class="font-bold text-slate-600 text-xs uppercase tracking-wider mb-3">Yêu cầu đổi ca</h3><form id="swapForm" class="space-y-3"><select id="taskToGive" required class="w-full px-3 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none bg-white text-sm"><option value="">-- Chọn việc --</option></select><select id="receiverSelect" required class="w-full px-3 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none bg-white text-sm"><option value="">-- Người nhận --</option></select><button type="submit" class="w-full bg-purple-600 text-white font-bold py-3 rounded-xl hover:bg-purple-700 transition-colors shadow-md shadow-purple-200 text-sm flex items-center justify-center gap-2"><i class="fa-regular fa-paper-plane"></i> Gửi lời mời</button></form></div>
+            <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-right-left text-purple-500"></i> Đổi ca</h2>
+            <div id="top1PrivilegeCard" class="hidden bg-gradient-to-br from-amber-400 to-orange-500 p-0.5 rounded-2xl shadow-lg shadow-amber-200 mb-5">
+                <div class="bg-white rounded-xl p-5">
+                    <h3 class="font-extrabold text-amber-600 mb-2 flex items-center gap-2 text-sm"><i class="fa-solid fa-crown"></i> Đặc Quyền Top 1</h3>
+                    <p class="text-xs text-slate-500 mb-4">Ép người khác làm việc.</p>
+                    <div class="space-y-3">
+                        <select id="superTaskToGive" onchange="toggleCustomTask()" class="w-full px-3 py-2.5 border-2 border-amber-200 rounded-xl outline-none bg-amber-50/30 text-sm font-medium"><option value="">-- Siêu việc --</option><option value="Giặt chăn mền">Giặt chăn mền</option><option value="Giặt ga giường">Giặt ga giường</option><option value="Lau dọn phòng tắm">Lau dọn phòng tắm</option><option value="Chà rửa bồn cầu">Chà rửa bồn cầu</option><option value="other">Khác...</option></select>
+                        <input type="text" id="customSuperTaskInput" placeholder="Nhập tên..." class="w-full px-3 py-2.5 border-2 border-amber-300 rounded-xl outline-none hidden bg-amber-50 text-sm">
+                        <div class="flex gap-2">
+                            <select id="victimSelect" class="flex-1 px-3 py-2.5 border-2 border-amber-200 rounded-xl outline-none bg-amber-50/30 text-sm font-medium" onchange="previewForcedCost()"><option value="">-- Nạn nhân --</option></select>
+                            <button onclick="executeForcedSwap()" class="bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold px-5 py-2.5 rounded-xl shadow-md text-sm flex items-center gap-2"><i class="fa-solid fa-bolt"></i> ÉP</button>
+                        </div>
+                        <p id="costPreview" class="text-xs font-bold text-orange-500 italic hidden"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 mb-5">
+                <h3 class="font-bold text-slate-600 text-xs uppercase tracking-wider mb-3">Yêu cầu đổi ca</h3>
+                <form id="swapForm" class="space-y-3">
+                    <select id="taskToGive" required class="w-full px-3 py-2.5 border border-slate-200 rounded-xl outline-none bg-white text-sm"><option value="">-- Chọn việc --</option></select>
+                    <select id="receiverSelect" required class="w-full px-3 py-2.5 border border-slate-200 rounded-xl outline-none bg-white text-sm"><option value="">-- Người nhận --</option></select>
+                    <button type="submit" class="w-full bg-purple-600 text-white font-bold py-3 rounded-xl hover:bg-purple-700 transition-colors shadow-md shadow-purple-200 text-sm flex items-center justify-center gap-2"><i class="fa-regular fa-paper-plane"></i> Gửi</button>
+                </form>
+            </div>
             <h3 class="font-bold text-slate-600 text-xs uppercase tracking-wider mb-3"><i class="fa-solid fa-inbox text-slate-300 mr-1"></i> Hộp thư đến</h3>
-            <div id="incomingSwaps" class="space-y-2 mb-6"><div class="text-center py-6 bg-white rounded-xl border border-slate-50 text-slate-300 text-xs italic">Không có lời mời.</div></div>
+            <div id="incomingSwaps" class="space-y-2 mb-6"><div class="text-center py-6 bg-white rounded-xl border border-slate-50 text-slate-300 text-xs italic">Không có.</div></div>
             <h3 class="font-bold text-slate-600 text-xs uppercase tracking-wider mb-3"><i class="fa-solid fa-clock-rotate-left text-slate-300 mr-1"></i> Đã gửi</h3>
             <div id="outgoingSwaps" class="space-y-2"><div class="text-center py-6 bg-white rounded-xl border border-slate-50 text-slate-300 text-xs italic">Chưa có.</div></div>
         </section>
@@ -95,90 +114,276 @@
     </nav>
 
 <script>
-    let mySupabase,currentUser=null;
-    const API='https://home-task-manager.onrender.com';
+    let mySupabase, currentUser = null, currentHouseholdId = null, householdName = '';
+    const API = 'https://home-task-manager.onrender.com';
 
-    function showToast(msg,type='info'){const c=document.getElementById('toastContainer');const cfg={error:{bg:'bg-red-500',ic:'fa-circle-exclamation'},success:{bg:'bg-emerald-500',ic:'fa-circle-check'},info:{bg:'bg-indigo-500',ic:'fa-circle-info'},warning:{bg:'bg-amber-500',ic:'fa-triangle-exclamation'}}[type]||{bg:'bg-slate-700',ic:'fa-circle-info'};const t=document.createElement('div');t.className=`pointer-events-auto ${cfg.bg} text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 toast-in text-sm font-medium`;t.innerHTML=`<i class="fa-solid ${cfg.ic}"></i><span class="flex-1">${msg}</span><button onclick="this.parentElement.remove()" class="opacity-60 hover:opacity-100"><i class="fa-solid fa-xmark text-xs"></i></button>`;c.appendChild(t);setTimeout(()=>{t.classList.replace('toast-in','toast-out');setTimeout(()=>t.remove(),300);},4000)}
+    // ===================== TOAST =====================
+    function showToast(msg, type = 'info') {
+        const c = document.getElementById('toastContainer');
+        const cfg = { error: { bg: 'bg-red-500', ic: 'fa-circle-exclamation' }, success: { bg: 'bg-emerald-500', ic: 'fa-circle-check' }, info: { bg: 'bg-indigo-500', ic: 'fa-circle-info' }, warning: { bg: 'bg-amber-500', ic: 'fa-triangle-exclamation' } }[type] || { bg: 'bg-slate-700', ic: 'fa-circle-info' };
+        const t = document.createElement('div');
+        t.className = `pointer-events-auto ${cfg.bg} text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 toast-in text-sm font-medium`;
+        t.innerHTML = `<i class="fa-solid ${cfg.ic}"></i><span class="flex-1">${msg}</span><button onclick="this.parentElement.remove()" class="opacity-60 hover:opacity-100"><i class="fa-solid fa-xmark text-xs"></i></button>`;
+        c.appendChild(t);
+        setTimeout(() => { t.classList.replace('toast-in', 'toast-out'); setTimeout(() => t.remove(), 300); }, 4000);
+    }
 
-    document.addEventListener('DOMContentLoaded',async()=>{try{const r=await fetch(`${API}/api/config`);const cfg=await r.json();mySupabase=supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_KEY);await checkAuth()}catch(e){showToast('Lỗi kết nối!','error')}});
-    async function checkAuth(){const{data:{user}}=await mySupabase.auth.getUser();if(!user)return window.location.href='login.html';const{data:p}=await mySupabase.from('profiles').select('*').eq('id',user.id).single();if(!p||p.role!=='member'){showToast('Trang này chỉ cho thành viên!','warning');return window.location.href='login.html'}currentUser=p;document.getElementById('userName').innerText=p.full_name;document.getElementById('userPoints').innerText=p.total_points||0;document.getElementById('userAvatar').innerText=p.full_name.charAt(0).toUpperCase();fetchMyTasks();fetchMyExpenses();fetchMySchedule();loadSwapData()}
+    // ===================== TAB =====================
+    function switchTab(id, btn) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => { b.classList.remove('text-indigo-600'); b.classList.add('text-slate-300'); });
+        document.getElementById(id).classList.add('active');
+        btn.classList.remove('text-slate-300');
+        btn.classList.add('text-indigo-600');
+    }
 
-    function switchTab(id,btn){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.nav-btn').forEach(b=>{b.classList.remove('text-indigo-600');b.classList.add('text-slate-300')});document.getElementById(id).classList.add('active');btn.classList.remove('text-slate-300');btn.classList.add('text-indigo-600')}
+    // ===================== INIT =====================
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            const r = await fetch(`${API}/api/config`);
+            const cfg = await r.json();
+            mySupabase = supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_KEY);
+            await checkAuth();
+        } catch (e) { showToast('Lỗi kết nối!', 'error'); }
+    });
 
-    // ===================== TASKS (HIỂN THỊ CA + FREQUENCY) =====================
-    async function fetchMyTasks(){
-        const list=document.getElementById('taskList');
-        const{data,error}=await mySupabase.from('assignments').select(`id,status,assigned_date,proof_image_url,slot,tasks(title,duration_minutes,points,frequency)`).eq('user_id',currentUser.id).order('slot');
-        if(error||!data){list.innerHTML='<p class="text-center text-red-400 text-sm py-8">Lỗi!</p>';return}
-        if(!data.length){list.innerHTML=`<div class="text-center py-12"><div class="w-16 h-16 bg-emerald-50 text-emerald-400 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-3"><i class="fa-solid fa-mug-hot"></i></div><p class="text-slate-600 font-medium">Bạn rảnh rồi!</p></div>`;return}
-        list.innerHTML='';
-        const sL={Morning:'Sáng',Afternoon:'Chiều',Evening:'Tối',null:''};
-        const sC={Morning:'bg-amber-50 text-amber-600',Afternoon:'bg-orange-50 text-orange-600',Evening:'bg-indigo-50 text-indigo-600'};
-        const fC={daily:'freq-daily',weekly:'freq-weekly',monthly:'freq-monthly'};
-        const fL={daily:'Ngày',weekly:'Tuần',monthly:'Tháng'};
+    async function checkAuth() {
+        const { data: { user } } = await mySupabase.auth.getUser();
+        if (!user) return window.location.href = 'login.html';
+        const { data: p } = await mySupabase.from('profiles').select('*, households(name)').eq('id', user.id).single();
+        if (!p || !p.household_id) return window.location.href = 'onboarding.html';
+        if (p.role !== 'member') { showToast('Trang này chỉ cho thành viên!', 'warning'); return window.location.href = 'login.html'; }
+        currentUser = p;
+        currentHouseholdId = p.household_id;
+        householdName = p.households?.name || '';
+        document.getElementById('userName').innerText = p.full_name;
+        document.getElementById('userPoints').innerText = p.total_points || 0;
+        document.getElementById('userAvatar').innerText = p.full_name.charAt(0).toUpperCase();
+        document.getElementById('headerHouse').querySelector('span').innerText = householdName;
+        fetchMyTasks();
+        fetchMyExpenses();
+        fetchMySchedule();
+        loadSwapData();
+    }
 
-        data.forEach(item=>{
-            const s=item.status;let badge,btn;
-            if(s==='pending'){badge='<span class="bg-red-50 text-red-500 px-2 py-0.5 rounded-lg text-[11px] font-bold">Chưa làm</span>';btn=`<button onclick="uploadProof('${item.id}')" class="w-full mt-3 bg-indigo-600 text-white font-bold py-2.5 rounded-xl text-sm flex items-center justify-center gap-2 hover:bg-indigo-700 shadow-md shadow-indigo-200"><i class="fa-solid fa-camera"></i> Chụp ảnh báo cáo</button>`}
-            else if(s==='reviewing'){badge='<span class="bg-amber-50 text-amber-500 px-2 py-0.5 rounded-lg text-[11px] font-bold flex items-center gap-1 w-fit"><span class="w-1.5 h-1.5 bg-amber-400 rounded-full pulse-dot"></span>Chờ duyệt</span>';btn=`<button disabled class="w-full mt-3 bg-slate-100 text-slate-400 font-bold py-2.5 rounded-xl text-sm flex items-center justify-center gap-2"><i class="fa-solid fa-hourglass-half"></i> Đang chờ Admin</button>`}
-            else{badge='<span class="bg-emerald-50 text-emerald-500 px-2 py-0.5 rounded-lg text-[11px] font-bold"><i class="fa-solid fa-check mr-0.5"></i>Xong</span>';btn=''}
-            const freq=item.tasks.frequency||'daily';
-            const slotHtml=item.slot?`<span class="text-[10px] font-bold px-2 py-0.5 rounded-lg ${sC[item.slot]||'bg-slate-100 text-slate-500'}">${sL[item.slot]}</span>`:'';
+    // ===================== TASKS =====================
+    async function fetchMyTasks() {
+        const list = document.getElementById('taskList');
+        const { data, error } = await mySupabase.from('assignments').select(`id,status,assigned_date,proof_image_url,slot,tasks(title,duration_minutes,points,frequency)`).eq('user_id', currentUser.id).order('slot');
+        if (error || !data) { list.innerHTML = '<p class="text-center text-red-400 text-sm py-8">Lỗi!</p>'; return; }
+        if (!data.length) { list.innerHTML = `<div class="text-center py-12"><div class="w-16 h-16 bg-emerald-50 text-emerald-400 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-3"><i class="fa-solid fa-mug-hot"></i></div><p class="text-slate-600 font-medium">Bạn rảnh rồi!</p></div>`; return; }
+        list.innerHTML = '';
+        const sL = { Morning: 'Sáng', Afternoon: 'Chiều', Evening: 'Tối', null: '' };
+        const sC = { Morning: 'bg-amber-50 text-amber-600', Afternoon: 'bg-orange-50 text-orange-600', Evening: 'bg-indigo-50 text-indigo-600' };
+        const fC = { daily: 'freq-daily', weekly: 'freq-weekly', monthly: 'freq-monthly' };
+        const fL = { daily: 'Ngày', weekly: 'Tuần', monthly: 'Tháng' };
 
-            list.innerHTML+=`<div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+        data.forEach(item => {
+            const s = item.status;
+            let badge, btn;
+            if (s === 'pending') {
+                badge = '<span class="bg-red-50 text-red-500 px-2 py-0.5 rounded-lg text-[11px] font-bold">Chưa làm</span>';
+                btn = `<button onclick="uploadProof('${item.id}')" class="w-full mt-3 bg-indigo-600 text-white font-bold py-2.5 rounded-xl text-sm flex items-center justify-center gap-2 hover:bg-indigo-700 shadow-md shadow-indigo-200"><i class="fa-solid fa-camera"></i> Chụp ảnh báo cáo</button>`;
+            } else if (s === 'reviewing') {
+                badge = '<span class="bg-amber-50 text-amber-500 px-2 py-0.5 rounded-lg text-[11px] font-bold flex items-center gap-1 w-fit"><span class="w-1.5 h-1.5 bg-amber-400 rounded-full pulse-dot"></span>Chờ duyệt</span>';
+                btn = `<button disabled class="w-full mt-3 bg-slate-100 text-slate-400 font-bold py-2.5 rounded-xl text-sm flex items-center justify-center gap-2"><i class="fa-solid fa-hourglass-half"></i> Đang chờ Admin</button>`;
+            } else {
+                badge = '<span class="bg-emerald-50 text-emerald-500 px-2 py-0.5 rounded-lg text-[11px] font-bold"><i class="fa-solid fa-check mr-0.5"></i>Xong</span>';
+                btn = '';
+            }
+            const freq = item.tasks.frequency || 'daily';
+            const slotHtml = item.slot ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded-lg ${sC[item.slot] || 'bg-slate-100 text-slate-500'}">${sL[item.slot]}</span>` : '';
+            list.innerHTML += `<div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
                 <div class="flex justify-between items-start mb-2">
-                    <div class="flex-1 min-w-0">
-                        <h3 class="font-bold text-slate-800 text-sm">${item.tasks.title}</h3>
-                        <div class="flex items-center gap-1.5 mt-1 flex-wrap">
-                            ${slotHtml}
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-lg ${fC[freq]}">${fL[freq]}</span>
-                        </div>
-                    </div>
+                    <div class="flex-1 min-w-0"><h3 class="font-bold text-slate-800 text-sm">${item.tasks.title}</h3>
+                    <div class="flex items-center gap-1.5 mt-1 flex-wrap">${slotHtml}<span class="text-[10px] font-bold px-2 py-0.5 rounded-lg ${fC[freq]}">${fL[freq]}</span></div></div>
                     ${badge}
                 </div>
                 <div class="flex gap-3 text-xs text-slate-400 mt-2">
                     <span><i class="fa-regular fa-clock mr-0.5"></i>${item.tasks.duration_minutes}p</span>
                     <span class="text-amber-400 font-semibold"><i class="fa-solid fa-star mr-0.5"></i>+${item.tasks.points}đ</span>
                     <span>${item.assigned_date}</span>
-                </div>
-                ${btn}
+                </div>${btn}
             </div>`;
         });
     }
 
-    function uploadProof(id){const input=document.createElement('input');input.type='file';input.accept='image/*';input.onchange=async(e)=>{const file=e.target.files[0];if(!file)return;showToast('Đang tải ảnh...','info');try{const ext=file.name.split('.').pop();const name=`${Date.now()}_${Math.random().toString(36).substring(2)}.${ext}`;const{error:ue}=await mySupabase.storage.from('task_images').upload(name,file);if(ue)throw ue;const{data:pub}=mySupabase.storage.from('task_images').getPublicUrl(name);const{error:up}=await mySupabase.from('assignments').update({status:'reviewing',proof_image_url:pub.publicUrl}).eq('id',id);if(up)throw up;showToast('Gửi báo cáo thành công!','success');fetchMyTasks()}catch(err){showToast('Lỗi: '+err.message,'error')}};input.click()}
+    function uploadProof(id) {
+        const input = document.createElement('input');
+        input.type = 'file'; input.accept = 'image/*';
+        input.onchange = async (e) => {
+            const file = e.target.files[0]; if (!file) return;
+            showToast('Đang tải ảnh...', 'info');
+            try {
+                const ext = file.name.split('.').pop();
+                const name = `${Date.now()}_${Math.random().toString(36).substring(2)}.${ext}`;
+                const { error: ue } = await mySupabase.storage.from('task_images').upload(name, file);
+                if (ue) throw ue;
+                const { data: pub } = mySupabase.storage.from('task_images').getPublicUrl(name);
+                const { error: up } = await mySupabase.from('assignments').update({ status: 'reviewing', proof_image_url: pub.publicUrl }).eq('id', id);
+                if (up) throw up;
+                showToast('Gửi báo cáo thành công!', 'success');
+                fetchMyTasks();
+            } catch (err) { showToast('Lỗi: ' + err.message, 'error'); }
+        };
+        input.click();
+    }
 
     // ===================== EXPENSES =====================
-    document.getElementById('expenseForm').addEventListener('submit',async(e)=>{e.preventDefault();const{error}=await mySupabase.from('expenses').insert([{payer_id:currentUser.id,description:document.getElementById('expDesc').value,amount:document.getElementById('expAmount').value,category:document.getElementById('expCategory').value}]);if(error)showToast('Lỗi: '+error.message,'error');else{showToast('Đã ghi nhận!','success');e.target.reset();fetchMyExpenses()}});
-    async function fetchMyExpenses(){const list=document.getElementById('myExpenseList');const{data}=await mySupabase.from('expenses').select('*').eq('payer_id',currentUser.id).order('created_at',{ascending:false});if(!data||!data.length)return;const vnd=n=>new Intl.NumberFormat('vi-VN',{style:'currency',currency:'VND'}).format(n);list.innerHTML='';data.forEach(i=>{list.innerHTML+=`<div class="bg-white p-3.5 rounded-xl border border-slate-50 shadow-sm flex justify-between items-center"><div><h4 class="font-semibold text-slate-800 text-sm">${i.description}</h4><p class="text-[11px] text-slate-400">${i.category}</p></div><span class="font-bold text-emerald-600 text-sm">${vnd(i.amount)}</span></div>`})}
+    document.getElementById('expenseForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const { error } = await mySupabase.from('expenses').insert([{
+            payer_id: currentUser.id,
+            description: document.getElementById('expDesc').value,
+            amount: document.getElementById('expAmount').value,
+            category: document.getElementById('expCategory').value
+        }]);
+        if (error) showToast('Lỗi: ' + error.message, 'error');
+        else { showToast('Đã ghi nhận!', 'success'); e.target.reset(); fetchMyExpenses(); }
+    });
+
+    async function fetchMyExpenses() {
+        const list = document.getElementById('myExpenseList');
+        const { data } = await mySupabase.from('expenses').select('*').eq('payer_id', currentUser.id).order('created_at', { ascending: false });
+        if (!data || !data.length) return;
+        const vnd = n => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n);
+        list.innerHTML = '';
+        data.forEach(i => { list.innerHTML += `<div class="bg-white p-3.5 rounded-xl border border-slate-50 shadow-sm flex justify-between items-center"><div><h4 class="font-semibold text-slate-800 text-sm">${i.description}</h4><p class="text-[11px] text-slate-400">${i.category}</p></div><span class="font-bold text-emerald-600 text-sm">${vnd(i.amount)}</span></div>`; });
+    }
 
     // ===================== SCHEDULE =====================
-    async function fetchMySchedule(){const{data}=await mySupabase.from('schedules').select('day_of_week,slot').eq('user_id',currentUser.id).eq('is_free',true);if(!data)return;document.querySelectorAll('#scheduleGridBody input[type="checkbox"]').forEach(c=>c.checked=false);data.forEach(i=>{const c=document.querySelector(`input[data-day="${i.day_of_week}"][data-slot="${i.slot}"]`);if(c)c.checked=true})}
-    async function saveWeeklySchedule(){const cbs=document.querySelectorAll('#scheduleGridBody input[type="checkbox"]');const ins=[];cbs.forEach(c=>{if(c.checked)ins.push({user_id:currentUser.id,day_of_week:c.dataset.day,slot:c.dataset.slot,is_free:true})});try{await mySupabase.from('schedules').delete().eq('user_id',currentUser.id);if(ins.length){const{error}=await mySupabase.from('schedules').insert(ins);if(error)throw error}showToast('Lưu lịch thành công!','success');fetchMySchedule()}catch(err){showToast('Lỗi: '+err.message,'error')}}
+    async function fetchMySchedule() {
+        const { data } = await mySupabase.from('schedules').select('day_of_week,slot').eq('user_id', currentUser.id).eq('is_free', true);
+        if (!data) return;
+        document.querySelectorAll('#scheduleGridBody input[type="checkbox"]').forEach(c => c.checked = false);
+        data.forEach(i => { const c = document.querySelector(`input[data-day="${i.day_of_week}"][data-slot="${i.slot}"]`); if (c) c.checked = true; });
+    }
+
+    async function saveWeeklySchedule() {
+        const cbs = document.querySelectorAll('#scheduleGridBody input[type="checkbox"]');
+        const ins = [];
+        cbs.forEach(c => { if (c.checked) ins.push({ user_id: currentUser.id, day_of_week: c.dataset.day, slot: c.dataset.slot, is_free: true }); });
+        try {
+            await mySupabase.from('schedules').delete().eq('user_id', currentUser.id);
+            if (ins.length) { const { error } = await mySupabase.from('schedules').insert(ins); if (error) throw error; }
+            showToast('Lưu lịch thành công!', 'success');
+            fetchMySchedule();
+        } catch (err) { showToast('Lỗi: ' + err.message, 'error'); }
+    }
 
     // ===================== SWAP =====================
-    async function loadSwapData(){try{const{data:myTasks}=await mySupabase.from('assignments').select('id,tasks(title)').eq('user_id',currentUser.id).eq('status','pending');const ts=document.getElementById('taskToGive');ts.innerHTML='<option value="">-- Chọn việc --</option>';if(myTasks)myTasks.forEach(t=>ts.innerHTML+=`<option value="${t.id}">${t.tasks.title}</option>`);
-    const{data:allM}=await mySupabase.from('profiles').select('id,full_name,total_points').eq('role','member').order('total_points',{ascending:false});
-    if(allM&&allM.length){const top1=allM[0];if(top1.id===currentUser.id&&top1.total_points>0){document.getElementById('top1PrivilegeCard').classList.remove('hidden');const vs=document.getElementById('victimSelect');vs.innerHTML='<option value="">-- Nạn nhân --</option>';allM.forEach(m=>{if(m.id!==currentUser.id)vs.innerHTML+=`<option value="${m.id}" data-points="${m.total_points||0}">${m.full_name} (${m.total_points||0}đ)</option>`})}else{document.getElementById('top1PrivilegeCard').classList.add('hidden')}
-    const rs=document.getElementById('receiverSelect');rs.innerHTML='<option value="">-- Người nhận --</option>';allM.forEach(m=>{if(m.id!==currentUser.id)rs.innerHTML+=`<option value="${m.id}">${m.full_name}</option>`})}
-    const{data:inc}=await mySupabase.from('swap_requests').select('id,profiles!requester_id(full_name),assignments!assignment_to_give(id,tasks(title))').eq('receiver_id',currentUser.id).eq('status','pending');renderIncomingSwaps(inc);
-    const{data:out}=await mySupabase.from('swap_requests').select('id,profiles!requester_id(full_name),assignments!assignment_to_give(id,tasks(title))').eq('requester_id',currentUser.id).order('created_at',{ascending:false});renderOutgoingSwaps(out)}catch(err){console.error(err)}}
+    async function loadSwapData() {
+        try {
+            const { data: myTasks } = await mySupabase.from('assignments').select('id,tasks(title)').eq('user_id', currentUser.id).eq('status', 'pending');
+            const ts = document.getElementById('taskToGive');
+            ts.innerHTML = '<option value="">-- Chọn việc --</option>';
+            if (myTasks) myTasks.forEach(t => ts.innerHTML += `<option value="${t.id}">${t.tasks.title}</option>`);
 
-    document.getElementById('swapForm').addEventListener('submit',async(e)=>{e.preventDefault();const tid=document.getElementById('taskToGive').value,rid=document.getElementById('receiverSelect').value;if(!tid||!rid)return showToast('Chọn đủ!','warning');const{error}=await mySupabase.from('swap_requests').insert([{requester_id:currentUser.id,receiver_id:rid,assignment_to_give:tid,status:'pending'}]);if(error)showToast('Lỗi!','error');else{showToast('Đã gửi!','success');loadSwapData()}});
+            const { data: allM } = await mySupabase.from('profiles').select('id,full_name,total_points').eq('household_id', currentHouseholdId).eq('role', 'member').order('total_points', { ascending: false });
+            if (allM && allM.length) {
+                const top1 = allM[0];
+                if (top1.id === currentUser.id && top1.total_points > 0) {
+                    document.getElementById('top1PrivilegeCard').classList.remove('hidden');
+                    const vs = document.getElementById('victimSelect');
+                    vs.innerHTML = '<option value="">-- Nạn nhân --</option>';
+                    allM.forEach(m => { if (m.id !== currentUser.id) vs.innerHTML += `<option value="${m.id}" data-points="${m.total_points || 0}">${m.full_name} (${m.total_points || 0}đ)</option>`; });
+                } else {
+                    document.getElementById('top1PrivilegeCard').classList.add('hidden');
+                }
+                const rs = document.getElementById('receiverSelect');
+                rs.innerHTML = '<option value="">-- Người nhận --</option>';
+                allM.forEach(m => { if (m.id !== currentUser.id) rs.innerHTML += `<option value="${m.id}">${m.full_name}</option>`; });
+            }
 
-    function renderIncomingSwaps(reqs){const c=document.getElementById('incomingSwaps');if(!reqs||!reqs.length){c.innerHTML='<div class="text-center py-6 bg-white rounded-xl border border-slate-50 text-slate-300 text-xs italic">Không có.</div>';return}c.innerHTML='';reqs.forEach(r=>{c.innerHTML+=`<div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100"><p class="text-sm text-slate-700 mb-3"><strong class="text-indigo-600">${r.profiles.full_name}</strong> nhờ: <span class="font-bold block mt-1 text-slate-800">"${r.assignments.tasks.title}"</span></p><div class="flex gap-2"><button onclick="handleSwap('${r.id}','${r.assignments.id}','approved')" class="flex-1 bg-indigo-600 text-white font-bold py-2 rounded-xl text-xs hover:bg-indigo-700">Đồng ý</button><button onclick="handleSwap('${r.id}',null,'rejected')" class="flex-1 bg-white text-red-400 border border-red-100 font-bold py-2 rounded-xl text-xs hover:bg-red-50">Từ chối</button></div></div>`})}
+            const { data: inc } = await mySupabase.from('swap_requests').select('id,profiles!requester_id(full_name),assignments!assignment_to_give(id,tasks(title))').eq('receiver_id', currentUser.id).eq('status', 'pending');
+            renderIncomingSwaps(inc);
+            const { data: out } = await mySupabase.from('swap_requests').select('id,profiles!requester_id(full_name),assignments!assignment_to_give(id,tasks(title))').eq('requester_id', currentUser.id).order('created_at', { ascending: false });
+            renderOutgoingSwaps(out);
+        } catch (err) { console.error(err); }
+    }
 
-    function renderOutgoingSwaps(reqs){const c=document.getElementById('outgoingSwaps');if(!reqs||!reqs.length){c.innerHTML='<div class="text-center py-6 bg-white rounded-xl border border-slate-50 text-slate-300 text-xs italic">Chưa có.</div>';return}const sm={'pending':'<span class="text-amber-500 text-[11px] font-bold bg-amber-50 px-2 py-0.5 rounded-lg">Chờ</span>','approved':'<span class="text-emerald-500 text-[11px] font-bold bg-emerald-50 px-2 py-0.5 rounded-lg">Đồng ý</span>','rejected':'<span class="text-red-400 text-[11px] font-bold bg-red-50 px-2 py-0.5 rounded-lg">Từ chối</span>'};c.innerHTML='';reqs.forEach(r=>{c.innerHTML+=`<div class="bg-white p-3.5 rounded-xl border border-slate-50 shadow-sm flex justify-between items-center"><div><p class="font-semibold text-slate-800 text-sm">${r.assignments.tasks.title}</p><p class="text-[11px] text-slate-400">${r.profiles.full_name}</p></div>${sm[r.status]||''}</div>`})}
+    document.getElementById('swapForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const tid = document.getElementById('taskToGive').value, rid = document.getElementById('receiverSelect').value;
+        if (!tid || !rid) return showToast('Chọn đủ!', 'warning');
+        const { error } = await mySupabase.from('swap_requests').insert([{ requester_id: currentUser.id, receiver_id: rid, assignment_to_give: tid, status: 'pending' }]);
+        if (error) showToast('Lỗi!', 'error');
+        else { showToast('Đã gửi!', 'success'); loadSwapData(); }
+    });
 
-    async function handleSwap(reqId,assignId,action){const{error:e1}=await mySupabase.from('swap_requests').update({status:action}).eq('id',reqId);if(e1)return showToast('Lỗi!','error');if(action==='approved'&&assignId){await mySupabase.from('assignments').update({user_id:currentUser.id}).eq('id',assignId);showToast('Đã nhận task!','success')}else{showToast('Đã từ chối.','info')}loadSwapData();fetchMyTasks()}
+    function renderIncomingSwaps(reqs) {
+        const c = document.getElementById('incomingSwaps');
+        if (!reqs || !reqs.length) { c.innerHTML = '<div class="text-center py-6 bg-white rounded-xl border border-slate-50 text-slate-300 text-xs italic">Không có.</div>'; return; }
+        c.innerHTML = '';
+        reqs.forEach(r => { c.innerHTML += `<div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100"><p class="text-sm text-slate-700 mb-3"><strong class="text-indigo-600">${r.profiles.full_name}</strong> nhờ: <span class="font-bold block mt-1 text-slate-800">"${r.assignments.tasks.title}"</span></p><div class="flex gap-2"><button onclick="handleSwap('${r.id}','${r.assignments.id}','approved')" class="flex-1 bg-indigo-600 text-white font-bold py-2 rounded-xl text-xs hover:bg-indigo-700">Đồng ý</button><button onclick="handleSwap('${r.id}',null,'rejected')" class="flex-1 bg-white text-red-400 border border-red-100 font-bold py-2 rounded-xl text-xs hover:bg-red-50">Từ chối</button></div></div>`; });
+    }
+
+    function renderOutgoingSwaps(reqs) {
+        const c = document.getElementById('outgoingSwaps');
+        if (!reqs || !reqs.length) { c.innerHTML = '<div class="text-center py-6 bg-white rounded-xl border border-slate-50 text-slate-300 text-xs italic">Chưa có.</div>'; return; }
+        const sm = { pending: '<span class="text-amber-500 text-[11px] font-bold bg-amber-50 px-2 py-0.5 rounded-lg">Chờ</span>', approved: '<span class="text-emerald-500 text-[11px] font-bold bg-emerald-50 px-2 py-0.5 rounded-lg">Đồng ý</span>', rejected: '<span class="text-red-400 text-[11px] font-bold bg-red-50 px-2 py-0.5 rounded-lg">Từ chối</span>' };
+        c.innerHTML = '';
+        reqs.forEach(r => { c.innerHTML += `<div class="bg-white p-3.5 rounded-xl border border-slate-50 shadow-sm flex justify-between items-center"><div><p class="font-semibold text-slate-800 text-sm">${r.assignments.tasks.title}</p><p class="text-[11px] text-slate-400">${r.profiles.full_name}</p></div>${sm[r.status] || ''}</div>`; });
+    }
+
+    async function handleSwap(reqId, assignId, action) {
+        const { error: e1 } = await mySupabase.from('swap_requests').update({ status: action }).eq('id', reqId);
+        if (e1) return showToast('Lỗi!', 'error');
+        if (action === 'approved' && assignId) {
+            await mySupabase.from('assignments').update({ user_id: currentUser.id }).eq('id', assignId);
+            showToast('Đã nhận task!', 'success');
+        } else { showToast('Đã từ chối.', 'info'); }
+        loadSwapData(); fetchMyTasks();
+    }
 
     // ===================== TOP 1 =====================
-    function previewForcedCost(){const vs=document.getElementById('victimSelect'),cp=document.getElementById('costPreview');if(!vs.value){cp.classList.add('hidden');return}const mp=currentUser.total_points||0,vo=vs.options[vs.selectedIndex],vp=parseInt(vo.dataset.points);let cost=mp-vp,disc='';if(mp>1.5*vp){cost=Math.floor(cost*0.75);disc=' (Giảm 25%)'}cp.classList.remove('hidden');cp.innerText=`Chi phí: -${cost} điểm${disc}`}
-    function toggleCustomTask(){const s=document.getElementById('superTaskToGive'),ci=document.getElementById('customSuperTaskInput');ci.classList.toggle('hidden',s.value!=='other');if(s.value==='other')ci.focus()}
+    function previewForcedCost() {
+        const vs = document.getElementById('victimSelect'), cp = document.getElementById('costPreview');
+        if (!vs.value) { cp.classList.add('hidden'); return; }
+        const mp = currentUser.total_points || 0, vo = vs.options[vs.selectedIndex], vp = parseInt(vo.dataset.points);
+        let cost = mp - vp, disc = '';
+        if (mp > 1.5 * vp) { cost = Math.floor(cost * 0.75); disc = ' (Giảm 25%)'; }
+        cp.classList.remove('hidden');
+        cp.innerText = `Chi phí: -${cost} điểm${disc}`;
+    }
 
-    async function executeForcedSwap(){let name=document.getElementById('superTaskToGive').value;if(name==='other'){name=document.getElementById('customSuperTaskInput').value.trim();if(!name)return showToast('Nhập tên!','warning')}const vid=document.getElementById('victimSelect').value;if(!name||!vid)return showToast('Chọn đủ!','warning');const{data:mp}=await mySupabase.from('profiles').select('total_points,last_ultimate_at').eq('id',currentUser.id).single();const{data:vp}=await mySupabase.from('profiles').select('total_points').eq('id',vid).single();if(mp.last_ultimate_at){const d=Math.ceil((30*86400000-(Date.now()-new Date(mp.last_ultimate_at)))/86400000);if(d>0)return showToast(`Hồi chiêu! Còn ${d} ngày.`,'warning')}let cost=(mp.total_points||0)-(vp.total_points||0);if((mp.total_points||0)>1.5*(vp.total_points||0))cost=Math.floor(cost*0.75);if((mp.total_points||0)<cost)return showToast('Không đủ điểm!','error');const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];const{data:sch}=await mySupabase.from('schedules').select('*').eq('user_id',vid).eq('day_of_week',days[new Date().getDay()]).eq('is_free',true);if(!sch||!sch.length)return showToast('Nạn nhân kẹt lịch!','warning');if(!confirm(`Mất ${cost} điểm để ép làm "${name}". Chắc?`))return;try{let tid;const{data:ex}=await mySupabase.from('tasks').select('id').eq('title',name).single();if(ex)tid=ex.id;else{const{data:nt}=await mySupabase.from('tasks').insert([{title:name,duration_minutes:60,points:50,frequency:'daily'}]).select('id').single();if(nt)tid=nt.id;else throw new Error('Tạo task thất bại')}const today=new Date().toISOString().split('T')[0];const{error:ae}=await mySupabase.from('assignments').insert([{task_id:tid,user_id:vid,assigned_date:today,status:'pending'}]);if(ae)throw ae;await mySupabase.from('profiles').update({total_points:(mp.total_points||0)-cost,last_ultimate_at:new Date().toISOString()}).eq('id',currentUser.id);showToast('Tung chiêu thành công!','success');loadSwapData();fetchMyTasks();document.getElementById('userPoints').innerText=(mp.total_points||0)-cost}catch(err){showToast('Lỗi: '+err.message,'error')}}
+    function toggleCustomTask() {
+        const s = document.getElementById('superTaskToGive'), ci = document.getElementById('customSuperTaskInput');
+        ci.classList.toggle('hidden', s.value !== 'other');
+        if (s.value === 'other') ci.focus();
+    }
 
-    async function logout(){await mySupabase.auth.signOut();window.location.href='login.html'}
+    async function executeForcedSwap() {
+        let name = document.getElementById('superTaskToGive').value;
+        if (name === 'other') { name = document.getElementById('customSuperTaskInput').value.trim(); if (!name) return showToast('Nhập tên!', 'warning'); }
+        const vid = document.getElementById('victimSelect').value;
+        if (!name || !vid) return showToast('Chọn đủ!', 'warning');
+        const { data: mp } = await mySupabase.from('profiles').select('total_points,last_ultimate_at').eq('id', currentUser.id).single();
+        const { data: vp } = await mySupabase.from('profiles').select('total_points').eq('id', vid).single();
+        if (mp.last_ultimate_at) { const d = Math.ceil((30 * 86400000 - (Date.now() - new Date(mp.last_ultimate_at))) / 86400000); if (d > 0) return showToast(`Hồi chiêu! Còn ${d} ngày.`, 'warning'); }
+        let cost = (mp.total_points || 0) - (vp.total_points || 0);
+        if ((mp.total_points || 0) > 1.5 * (vp.total_points || 0)) cost = Math.floor(cost * 0.75);
+        if ((mp.total_points || 0) < cost) return showToast('Không đủ điểm!', 'error');
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const { data: sch } = await mySupabase.from('schedules').select('*').eq('user_id', vid).eq('day_of_week', days[new Date().getDay()]).eq('is_free', true);
+        if (!sch || !sch.length) return showToast('Nạn nhân kẹt lịch!', 'warning');
+        if (!confirm(`Mất ${cost} điểm để ép làm "${name}". Chắc?`)) return;
+        try {
+            let tid;
+            const { data: ex } = await mySupabase.from('tasks').select('id').eq('title', name).single();
+            if (ex) tid = ex.id;
+            else { const { data: nt } = await mySupabase.from('tasks').insert([{ title: name, duration_minutes: 60, points: 50, frequency: 'daily' }]).select('id').single(); if (nt) tid = nt.id; else throw new Error('Tạo task thất bại'); }
+            const today = new Date().toISOString().split('T')[0];
+            const { error: ae } = await mySupabase.from('assignments').insert([{ task_id: tid, user_id: vid, assigned_date: today, status: 'pending' }]);
+            if (ae) throw ae;
+            await mySupabase.from('profiles').update({ total_points: (mp.total_points || 0) - cost, last_ultimate_at: new Date().toISOString() }).eq('id', currentUser.id);
+            showToast('Tung chiêu thành công!', 'success');
+            loadSwapData(); fetchMyTasks();
+            document.getElementById('userPoints').innerText = (mp.total_points || 0) - cost;
+        } catch (err) { showToast('Lỗi: ' + err.message, 'error'); }
+    }
+
+    async function logout() { await mySupabase.auth.signOut(); window.location.href = 'login.html'; }
 </script>
 </body>
 </html>

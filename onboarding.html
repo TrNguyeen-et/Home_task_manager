@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo hoặc tham gia nhà - Home Task Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body{font-family:'Inter',sans-serif}
+        .bg-grid{background-image:radial-gradient(circle at 1px 1px,rgba(99,102,241,.07) 1px,transparent 0);background-size:32px 32px}
+        @keyframes toastIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+        @keyframes toastOut{from{transform:translateX(0);opacity:1}to{transform:translateX(100%);opacity:0}}
+        .toast-in{animation:toastIn .4s cubic-bezier(.16,1,.3,1) forwards}
+        .toast-out{animation:toastOut .3s ease-in forwards}
+        @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+        .float-anim{animation:float 3s ease-in-out infinite}
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-50 via-indigo-50/30 to-slate-100 bg-grid">
+
+    <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-3 max-w-sm w-full pointer-events-none"></div>
+
+    <div class="max-w-lg w-full">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white mb-4 shadow-lg shadow-indigo-200 float-anim">
+                <i class="fa-solid fa-house-chimney text-2xl"></i>
+            </div>
+            <h1 class="text-2xl font-extrabold text-slate-900">Chào mừng bạn!</h1>
+            <p class="text-slate-500 text-sm mt-1">Tạo nhà mới hoặc tham gia nhà đã có</p>
+            <p class="text-slate-400 text-xs mt-2" id="userGreeting">Đang tải...</p>
+        </div>
+
+        <!-- 2 Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            <!-- Tạo nhà mới -->
+            <div class="bg-white rounded-2xl shadow-lg shadow-indigo-100 border border-indigo-100 p-6 hover:shadow-xl transition-shadow">
+                <div class="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 mb-4">
+                    <i class="fa-solid fa-plus text-xl"></i>
+                </div>
+                <h2 class="font-bold text-slate-800 mb-1">Tạo nhà mới</h2>
+                <p class="text-xs text-slate-400 mb-4">Bạn sẽ trở thành Quản trị viên. Nhận mã mời để chia sẻ cho người khác.</p>
+                <div id="createForm" class="space-y-3 hidden">
+                    <input type="text" id="houseName" placeholder="VD: Nhà gia đình Nguyễn" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                    <button onclick="createHouse()" id="createBtn" class="w-full bg-indigo-600 text-white font-bold py-2.5 rounded-xl hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-200 text-sm flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Tạo nhà
+                    </button>
+                    <!-- Kết quả sau khi tạo -->
+                    <div id="createResult" class="hidden bg-indigo-50 rounded-xl p-4 border border-indigo-100 text-center">
+                        <p class="text-xs text-indigo-500 font-semibold mb-1">Mã mời thành viên tham gia:</p>
+                        <p class="text-3xl font-extrabold text-indigo-600 tracking-[0.3em]" id="joinCodeDisplay">------</p>
+                        <button onclick="copyCode()" class="mt-2 text-xs text-indigo-500 hover:text-indigo-700 font-bold flex items-center gap-1 mx-auto"><i class="fa-regular fa-copy"></i> Sao chép mã</button>
+                    </div>
+                </div>
+                <button onclick="document.getElementById('createForm').classList.toggle('hidden')" class="w-full bg-indigo-50 text-indigo-600 font-bold py-2.5 rounded-xl hover:bg-indigo-100 transition-colors text-sm" id="createToggle">Bắt đầu</button>
+            </div>
+
+            <!-- Tham gia nhà -->
+            <div class="bg-white rounded-2xl shadow-lg shadow-emerald-100 border border-emerald-100 p-6 hover:shadow-xl transition-shadow">
+                <div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 mb-4">
+                    <i class="fa-solid fa-right-to-bracket text-xl"></i>
+                </div>
+                <h2 class="font-bold text-slate-800 mb-1">Tham gia nhà</h2>
+                <p class="text-xs text-slate-400 mb-4">Nhập mã 6 ký tự mà quản trị viên gửi cho bạn.</p>
+                <div id="joinForm" class="space-y-3 hidden">
+                    <input type="text" id="joinCode" maxlength="6" placeholder="VD: ABC123" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-sm text-center text-lg font-bold tracking-[0.3em] uppercase" oninput="this.value=this.value.replace(/[^A-Za-z0-9]/g,'')">
+                    <button onclick="joinHouse()" id="joinBtn" class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-xl hover:bg-emerald-700 transition-colors shadow-md shadow-emerald-200 text-sm flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-door-open"></i> Tham gia
+                    </button>
+                </div>
+                <button onclick="document.getElementById('joinForm').classList.toggle('hidden')" class="w-full bg-emerald-50 text-emerald-600 font-bold py-2.5 rounded-xl hover:bg-emerald-100 transition-colors text-sm" id="joinToggle">Nhập mã</button>
+            </div>
+        </div>
+
+        <!-- Đăng xuất -->
+        <div class="text-center">
+            <button onclick="logout()" class="text-slate-400 hover:text-red-500 text-xs font-medium transition-colors"><i class="fa-solid fa-arrow-right-from-bracket mr-1"></i> Đăng xuất</button>
+        </div>
+    </div>
+
+<script>
+    let mySupabase, currentUser=null;
+    const API='https://home-task-manager.onrender.com';
+
+    function showToast(msg,type='info'){
+        const c=document.getElementById('toastContainer');
+        const cfg={error:{bg:'bg-red-500',ic:'fa-circle-exclamation'},success:{bg:'bg-emerald-500',ic:'fa-circle-check'},info:{bg:'bg-indigo-500',ic:'fa-circle-info'}}[type]||{bg:'bg-slate-700',ic:'fa-circle-info'};
+        const t=document.createElement('div');
+        t.className=`pointer-events-auto ${cfg.bg} text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-3 toast-in text-sm font-medium`;
+        t.innerHTML=`<i class="fa-solid ${cfg.ic}"></i><span class="flex-1">${msg}</span><button onclick="this.parentElement.remove()" class="opacity-60 hover:opacity-100"><i class="fa-solid fa-xmark text-xs"></i></button>`;
+        c.appendChild(t);setTimeout(()=>{t.classList.replace('toast-in','toast-out');setTimeout(()=>t.remove(),300);},4000);
+    }
+
+    document.addEventListener('DOMContentLoaded',async()=>{
+        try{
+            const r=await fetch(`${API}/api/config`);const cfg=await r.json();
+            mySupabase=supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_KEY);
+            const{data:{user}}=await mySupabase.auth.getUser();
+            if(!user) return window.location.href='login.html';
+            const{data:profile}=await mySupabase.from('profiles').select('*').eq('id',user.id).single();
+            if(!profile) return window.location.href='login.html';
+            if(profile.household_id) return window.location.href=profile.role==='admin'?'admin_dashboard.html':'user_dashboard.html';
+            currentUser=profile;
+            document.getElementById('userGreeting').innerText=`Xin chào, ${profile.full_name}!`;
+        }catch(e){console.error(e)}
+    });
+
+    async function createHouse(){
+        const name=document.getElementById('houseName').value.trim();
+        if(!name) return showToast('Nhập tên nhà!','warning');
+        const btn=document.getElementById('createBtn');
+        btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-circle-notch fa-spin"></i> Đang tạo...';
+        try{
+            const r=await fetch(`${API}/api/households`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,user_id:currentUser.id})});
+            const d=await r.json();
+            if(!r.ok) throw new Error(d.detail||'Lỗi');
+            document.getElementById('createToggle').classList.add('hidden');
+            document.getElementById('createResult').classList.remove('hidden');
+            document.getElementById('joinCodeDisplay').innerText=d.join_code;
+            showToast(`Đã tạo "${d.household_name}"! Bạn là Admin.`,'success');
+            // Tự chuyển sau 3 giây
+            setTimeout(()=>{window.location.href='admin_dashboard.html'},3000);
+        }catch(e){showToast('Lỗi: '+e.message,'error');btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-wand-magic-sparkles"></i> Tạo nhà'}
+    }
+
+    function copyCode(){
+        const code=document.getElementById('joinCodeDisplay').innerText;
+        navigator.clipboard.writeText(code).then(()=>showToast('Đã sao chép mã: '+code,'success')).catch(()=>showToast('Lỗi sao chép','error'));
+    }
+
+    async function joinHouse(){
+        const code=document.getElementById('joinCode').value.trim();
+        if(!code||code.length!==6) return showToast('Nhập đủ 6 ký tự!','warning');
+        const btn=document.getElementById('joinBtn');
+        btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-circle-notch fa-spin"></i> Đang tham gia...';
+        try{
+            const r=await fetch(`${API}/api/households/join`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({join_code:code,user_id:currentUser.id})});
+            const d=await r.json();
+            if(!r.ok) throw new Error(d.detail||'Lỗi');
+            showToast(`Đã tham gia ${d.household_name}!`,'success');
+            setTimeout(()=>{window.location.href='user_dashboard.html'},1500);
+        }catch(e){showToast('Lỗi: '+e.message,'error');btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-door-open"></i> Tham gia'}
+    }
+
+    async function logout(){await mySupabase.auth.signOut();window.location.href='login.html'}
+</script>
+</body>
+</html>

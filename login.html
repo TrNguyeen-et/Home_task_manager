@@ -3,69 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng nhập - Quản lý việc nhà</title>
+    <title>Home Task Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .bg-grid {
-            background-image: radial-gradient(circle at 1px 1px, rgba(99,102,241,0.07) 1px, transparent 0);
-            background-size: 32px 32px;
-        }
-        @keyframes toastIn { from { transform: translateX(100%); opacity:0; } to { transform: translateX(0); opacity:1; } }
-        @keyframes toastOut { from { transform: translateX(0); opacity:1; } to { transform: translateX(100%); opacity:0; } }
-        .toast-in { animation: toastIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards; }
-        .toast-out { animation: toastOut 0.3s ease-in forwards; }
-        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
-        .float-anim { animation: float 4s ease-in-out infinite; }
+        body{font-family:'Inter',sans-serif}
+        .bg-grid{background-image:radial-gradient(circle at 1px 1px,rgba(99,102,241,.07) 1px,transparent 0);background-size:32px 32px}
+        @keyframes toastIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+        @keyframes toastOut{from{transform:translateX(0);opacity:1}to{transform:translateX(100%);opacity:0}}
+        .toast-in{animation:toastIn .4s cubic-bezier(.16,1,.3,1) forwards}
+        .toast-out{animation:toastOut .3s ease-in forwards}
+        @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+        .float-anim{animation:float 4s ease-in-out infinite}
+        .tab-btn.active{background:#4f46e5;color:white;box-shadow:0 4px 12px rgba(79,70,229,.3)}
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-50 via-indigo-50/30 to-slate-100 bg-grid">
 
-    <!-- Toast Container -->
     <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-3 max-w-sm w-full pointer-events-none"></div>
 
     <div class="max-w-md w-full">
-        <!-- Logo Section -->
         <div class="text-center mb-8">
             <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white mb-5 shadow-lg shadow-indigo-200 float-anim">
                 <i class="fa-solid fa-house-chimney text-3xl"></i>
             </div>
             <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Home Task Manager</h1>
-            <p class="text-slate-500 text-sm mt-2">Đăng nhập để tiếp tục quản lý việc nhà</p>
+            <p class="text-slate-500 text-sm mt-2">Quản lý việc nhà cùng gia đình</p>
         </div>
 
-        <!-- Login Card -->
         <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/50 p-8 border border-slate-100">
-            <form id="loginForm" class="space-y-5">
+            <!-- Tab Switcher -->
+            <div class="flex bg-slate-100 rounded-xl p-1 mb-6">
+                <button onclick="switchAuthTab('login')" id="tabLogin" class="tab-btn active flex-1 py-2.5 rounded-lg text-sm font-bold transition-all">Đăng nhập</button>
+                <button onclick="switchAuthTab('register')" id="tabRegister" class="tab-btn flex-1 py-2.5 rounded-lg text-sm font-bold text-slate-500 transition-all">Đăng ký</button>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <form id="loginForm" class="space-y-4">
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-1.5">Email</label>
                     <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                            <i class="fa-regular fa-envelope text-slate-400"></i>
-                        </div>
-                        <input type="email" id="email" required class="block w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-all outline-none" placeholder="email@example.com">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none"><i class="fa-regular fa-envelope text-slate-400"></i></div>
+                        <input type="email" id="loginEmail" required class="block w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm" placeholder="email@example.com">
                     </div>
                 </div>
-
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-1.5">Mật khẩu</label>
                     <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                            <i class="fa-solid fa-lock text-slate-400 text-sm"></i>
-                        </div>
-                        <input type="password" id="password" required class="block w-full pl-10 pr-12 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-all outline-none" placeholder="Nhập mật khẩu">
-                        <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 transition-colors">
-                            <i id="eyeIcon" class="fa-regular fa-eye"></i>
-                        </button>
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none"><i class="fa-solid fa-lock text-slate-400 text-sm"></i></div>
+                        <input type="password" id="loginPassword" required class="block w-full pl-10 pr-12 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm" placeholder="••••••••">
+                        <button type="button" onclick="togglePw('loginPassword',this)" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600"><i class="fa-regular fa-eye"></i></button>
                     </div>
                 </div>
+                <button type="submit" id="loginBtn" class="w-full flex justify-center py-3 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 shadow-lg shadow-indigo-200 disabled:opacity-60 transition-all">
+                    <span id="loginBtnText">Đăng nhập</span>
+                    <i id="loginSpin" class="fa-solid fa-circle-notch fa-spin ml-2 hidden"></i>
+                </button>
+            </form>
 
-                <button type="submit" id="submitBtn" class="w-full flex justify-center py-3 px-4 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all shadow-lg shadow-indigo-200 disabled:opacity-60 disabled:cursor-not-allowed">
-                    <span id="btnText">Đăng nhập</span>
-                    <i id="loadingIcon" class="fa-solid fa-circle-notch fa-spin ml-2 hidden"></i>
+            <!-- REGISTER FORM -->
+            <form id="registerForm" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Họ và tên</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none"><i class="fa-regular fa-user text-slate-400"></i></div>
+                        <input type="text" id="regName" required class="block w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm" placeholder="Nguyễn Văn A">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Email</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none"><i class="fa-regular fa-envelope text-slate-400"></i></div>
+                        <input type="email" id="regEmail" required class="block w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm" placeholder="email@example.com">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Mật khẩu</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none"><i class="fa-solid fa-lock text-slate-400 text-sm"></i></div>
+                        <input type="password" id="regPassword" required minlength="6" class="block w-full pl-10 pr-12 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm" placeholder="Tối thiểu 6 ký tự">
+                        <button type="button" onclick="togglePw('regPassword',this)" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600"><i class="fa-regular fa-eye"></i></button>
+                    </div>
+                </div>
+                <button type="submit" id="regBtn" class="w-full flex justify-center py-3 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-lg shadow-emerald-200 disabled:opacity-60 transition-all">
+                    <span id="regBtnText">Tạo tài khoản</span>
+                    <i id="regSpin" class="fa-solid fa-circle-notch fa-spin ml-2 hidden"></i>
                 </button>
             </form>
         </div>
@@ -75,77 +99,99 @@
 
 <script>
     let mySupabase;
-    const form = document.getElementById('loginForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const loadingIcon = document.getElementById('loadingIcon');
-    const btnText = document.getElementById('btnText');
+    const API = 'https://home-task-manager.onrender.com';
 
-    // --- TOAST SYSTEM ---
-    function showToast(message, type = 'error') {
-        const container = document.getElementById('toastContainer');
-        const colors = {
-            error: 'bg-red-500', success: 'bg-emerald-500', info: 'bg-indigo-500', warning: 'bg-amber-500'
-        };
-        const icons = {
-            error: 'fa-circle-exclamation', success: 'fa-circle-check', info: 'fa-circle-info', warning: 'fa-triangle-exclamation'
-        };
-        const toast = document.createElement('div');
-        toast.className = `pointer-events-auto ${colors[type]} text-white px-5 py-3.5 rounded-xl shadow-lg flex items-center gap-3 toast-in text-sm font-medium`;
-        toast.innerHTML = `<i class="fa-solid ${icons[type]}"></i><span class="flex-1">${message}</span><button onclick="this.parentElement.remove()" class="opacity-70 hover:opacity-100"><i class="fa-solid fa-xmark"></i></button>`;
-        container.appendChild(toast);
-        setTimeout(() => { toast.classList.replace('toast-in','toast-out'); setTimeout(() => toast.remove(), 300); }, 4000);
+    function showToast(msg,type='error'){
+        const c=document.getElementById('toastContainer');
+        const cfg={error:{bg:'bg-red-500',ic:'fa-circle-exclamation'},success:{bg:'bg-emerald-500',ic:'fa-circle-check'},info:{bg:'bg-indigo-500',ic:'fa-circle-info'}}[type]||{bg:'bg-slate-700',ic:'fa-circle-info'};
+        const t=document.createElement('div');
+        t.className=`pointer-events-auto ${cfg.bg} text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-3 toast-in text-sm font-medium`;
+        t.innerHTML=`<i class="fa-solid ${cfg.ic}"></i><span class="flex-1">${msg}</span><button onclick="this.parentElement.remove()" class="opacity-60 hover:opacity-100"><i class="fa-solid fa-xmark text-xs"></i></button>`;
+        c.appendChild(t);setTimeout(()=>{t.classList.replace('toast-in','toast-out');setTimeout(()=>t.remove(),300);},4000);
     }
 
-    function togglePassword() {
-        const pw = document.getElementById('password');
-        const icon = document.getElementById('eyeIcon');
-        if (pw.type === 'password') { pw.type = 'text'; icon.className = 'fa-regular fa-eye-slash'; }
-        else { pw.type = 'password'; icon.className = 'fa-regular fa-eye'; }
+    function switchAuthTab(tab){
+        document.getElementById('loginForm').classList.toggle('hidden',tab!=='login');
+        document.getElementById('registerForm').classList.toggle('hidden',tab!=='register');
+        document.getElementById('tabLogin').classList.toggle('active',tab==='login');
+        document.getElementById('tabRegister').classList.toggle('active',tab==='register');
+        if(tab!=='login'){document.getElementById('tabLogin').classList.add('text-slate-500');document.getElementById('tabRegister').classList.remove('text-slate-500')}
+        else{document.getElementById('tabRegister').classList.add('text-slate-500');document.getElementById('tabLogin').classList.remove('text-slate-500')}
     }
 
-    document.addEventListener('DOMContentLoaded', async () => {
-        try {
-            const response = await fetch('https://home-task-manager.onrender.com/api/config');
-            const config = await response.json();
-            mySupabase = supabase.createClient(config.SUPABASE_URL, config.SUPABASE_KEY);
-        } catch (error) {
-            showToast('Không thể kết nối Backend!', 'error');
-        }
+    function togglePw(id,btn){
+        const inp=document.getElementById(id);
+        if(inp.type==='password'){inp.type='text';btn.innerHTML='<i class="fa-regular fa-eye-slash"></i>'}
+        else{inp.type='password';btn.innerHTML='<i class="fa-regular fa-eye"></i>'}
+    }
+
+    document.addEventListener('DOMContentLoaded',async()=>{
+        try{
+            const r=await fetch(`${API}/api/config`);const cfg=await r.json();
+            mySupabase=supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_KEY);
+            // Tự động login nếu đã có session
+            const{data:{user}}=await mySupabase.auth.getUser();
+            if(user) await routeUser(user.id);
+        }catch(e){console.error(e)}
     });
 
-    form.addEventListener('submit', async (e) => {
+    async function routeUser(userId){
+        try{
+            const{data:profile}=await mySupabase.from('profiles').select('role,household_id').eq('id',userId).single();
+            if(!profile||!profile.household_id) return window.location.href='onboarding.html';
+            window.location.href = profile.role==='admin' ? 'admin_dashboard.html' : 'user_dashboard.html';
+        }catch(e){window.location.href='onboarding.html'}
+    }
+
+    // LOGIN
+    document.getElementById('loginForm').addEventListener('submit',async(e)=>{
         e.preventDefault();
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
+        const btn=document.getElementById('loginBtn'),spin=document.getElementById('loginSpin'),txt=document.getElementById('loginBtnText');
+        btn.disabled=true;spin.classList.remove('hidden');txt.textContent='Đang đăng nhập...';
+        try{
+            if(!mySupabase) throw new Error("Chưa kết nối!");
+            const{data:auth,error:authErr}=await mySupabase.auth.signInWithPassword({email:document.getElementById('loginEmail').value,password:document.getElementById('loginPassword').value});
+            if(authErr) throw authErr;
+            await routeUser(auth.user.id);
+        }catch(e){
+            showToast(e.message==='Invalid login credentials'?'Sai email hoặc mật khẩu!':e.message,'error');
+        }finally{btn.disabled=false;spin.classList.add('hidden');txt.textContent='Đăng nhập'}
+    });
 
-        submitBtn.disabled = true;
-        loadingIcon.classList.remove('hidden');
-        btnText.textContent = 'Đang xác thực...';
+    // REGISTER
+    document.getElementById('registerForm').addEventListener('submit',async(e)=>{
+        e.preventDefault();
+        const btn=document.getElementById('regBtn'),spin=document.getElementById('regSpin'),txt=document.getElementById('regBtnText');
+        btn.disabled=true;spin.classList.remove('hidden');txt.textContent='Đang tạo tài khoản...';
+        try{
+            if(!mySupabase) throw new Error("Chưa kết nối!");
+            const name=document.getElementById('regName').value.trim();
+            const email=document.getElementById('regEmail').value;
+            const pw=document.getElementById('regPassword').value;
+            if(pw.length<6) throw new Error("Mật khẩu tối thiểu 6 ký tự!");
 
-        try {
-            if (!mySupabase) throw new Error("Chưa kết nối Database!");
+            // 1. Tạo auth user
+            const{data:auth,error:authErr}=await mySupabase.auth.signUp({email,password:pw});
+            if(authErr) throw authErr;
 
-            const { data: authData, error: authError } = await mySupabase.auth.signInWithPassword({ email, password });
-            if (authError) throw authError;
+            // 2. Tạo profile
+            const{error:profErr}=await mySupabase.from('profiles').insert([{
+                id:auth.user.id,
+                full_name:name,
+                role:'member',
+                total_points:0,
+                household_id:null
+            }]).single();
+            if(profErr){
+                // Profile có thể đã tồn tại do trigger
+                console.warn("Profile insert warning:",profErr);
+            }
 
-            const { data: profileData, error: profileError } = await mySupabase
-                .from('profiles').select('role').eq('id', authData.user.id).single();
-            if (profileError) throw profileError;
-
-            showToast('Đăng nhập thành công! Đang chuyển trang...', 'success');
-
-            setTimeout(() => {
-                window.location.href = profileData.role === 'admin' ? 'admin_dashboard.html' : 'user_dashboard.html';
-            }, 800);
-
-        } catch (error) {
-            const msg = error.message === 'Invalid login credentials' ? 'Sai email hoặc mật khẩu!' : error.message;
-            showToast(msg, 'error');
-        } finally {
-            submitBtn.disabled = false;
-            loadingIcon.classList.add('hidden');
-            btnText.textContent = 'Đăng nhập';
-        }
+            showToast('Tạo tài khoản thành công!','success');
+            setTimeout(()=>{window.location.href='onboarding.html'},800);
+        }catch(e){
+            showToast(e.message,'error');
+        }finally{btn.disabled=false;spin.classList.add('hidden');txt.textContent='Tạo tài khoản'}
     });
 </script>
 </body>
